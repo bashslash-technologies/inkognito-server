@@ -15,10 +15,12 @@ const startServer = async () => {
 
     //listen on port
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, (e) => {
+    const subscriber = app.listen(PORT, (e) => {
       if (e) throw error;
       console.log(`Server started on ${process.env.PORT}`);
     });
+
+    require("./subscriptions/index")(broker).listen(subscriber);
   } catch (e) {
     throw new Error(e);
   }
