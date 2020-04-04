@@ -4,6 +4,7 @@ const boot = require("./boot");
 
 //models
 const ProductModel = require("./model/product");
+const SellerModel = require("./model/seller");
 
 const createConnection = async ({ DB_URI }) => {
   try {
@@ -24,6 +25,7 @@ const createConnection = async ({ DB_URI }) => {
   //return the models
   return {
     Product: BuildORMFromModels(ProductModel),
+    Seller: BuildORMFromModels(SellerModel),
   };
 };
 

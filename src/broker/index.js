@@ -2,6 +2,7 @@ const ORMBuilder = require("./db");
 
 //services
 const ProductService = require("./services/productService");
+const SellerService = require("./services/sellerService");
 
 module.exports = async ({ DB_URI = "mongodb://localhost:27017/inkognito" }) => {
   try {
@@ -9,6 +10,7 @@ module.exports = async ({ DB_URI = "mongodb://localhost:27017/inkognito" }) => {
 
     return {
       ProductService: ProductService({ ORM }),
+      SellerService: SellerService({ ORM }),
     };
   } catch (e) {
     return new Error(e);
