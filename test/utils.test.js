@@ -1,5 +1,6 @@
 const Utils = require("../src/broker/utility");
 
+
 describe("Utility tests", () => {
   const password = "inkognito-appplication-programming-interface";
   const keyword = "inkognito";
