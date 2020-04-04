@@ -2,6 +2,7 @@ const { Router } = require("express");
 const { UploadProducts } = require("../../broker/utility/upload");
 const multer = require("multer");
 const upload = multer();
+const utils = require("../../broker/utility");
 
 const breakError = (data, res) => {
   if (data instanceof Error)
@@ -42,6 +43,17 @@ module.exports = (broker) => {
   router.delete("/:id", async (req, res) => {
     let product = await broker.ProductService.deleteProduct(req.params.id);
     return breakError(product, res);
+  });
+
+  router.get("/try_message", async (req, res) => {
+    await utils.sendMail({
+      user: {
+        name: "meeeee",
+        email: "domeybenjamin1@gmail.com",
+      },
+      subject: "Try outs",
+      filename: "test",
+    });
   });
 
   return router;

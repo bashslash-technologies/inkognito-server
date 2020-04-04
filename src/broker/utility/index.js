@@ -1,7 +1,6 @@
 const Bcrypt = require("bcryptjs");
 const JWT = require("jsonwebtoken");
-// const mkdirp = require("mkdirp");
-// const { existsSync, mkdirSync, unlink, createWriteStream } = require("fs"); // for file upload
+const mail = require("./mail");
 
 require("dotenv").config({ path: ".env" });
 /*
@@ -62,55 +61,7 @@ exports.validateCipher = ({ token }) =>
     }
   });
 
-// exports.sendMessage = async ({ phone, code }) => {
-//   try {
-//     const response = await Twilio.messages.create({
-//       body: `${code} is your Ikognito verification code`,
-//       from: "+12623204575",
-//       from: "+12623204575",
-//       to: phone,
-//     });
-//     console.log(response.error_message || "text successfully sent");
-//     return true;
-//   } catch (e) {
-//     return new Error(e);
-//   }
-// };
-
-// exports.sendMail = async (options) => {
-//   let success = await Mail.send(options);
-//   return success;
-// };
-
-// exports.deleteFile = (path) => {
-//   unlink(path, (err) => {
-//     if (err) return new Error(err);
-//   });
-//   return true;
-// };
-
-// function makeDirectory(directory) {
-//   if (!existsSync(directory)) {
-//     mkdirSync(directory);
-//     return true;
-//   }
-//   return true; //if folder already exists
-// }
-//
-// exports.uploadFile = async ({ file, type }) => {
-//   try {
-//     const { createReadStream, filename } = await file;
-//     makeDirectory(`${__dirname}/../../Uploads`);
-//     const fileDirectory = `${__dirname}/../../Uploads/${type}`;
-//     const ensureDirectoryExistence = makeDirectory(fileDirectory);
-//     if (!ensureDirectoryExistence)
-//       throw new Error("File directory creation failure");
-//     const fileURL = `${uuid.v4()}.${filename.split(".")[1]}`;
-//     let creation = await createReadStream();
-//     await creation.pipe(createWriteStream(`${fileDirectory}/${fileURL}`));
-//     await creation.on("close", () => {});
-//     return fileURL;
-//   } catch (e) {
-//     throw new Error(e);
-//   }
-// };
+exports.sendMail = async (options) => {
+  let success = await mail.send(options);
+  return success;
+};
