@@ -19,6 +19,11 @@ const SellerService = ({ ORM: { Seller } }) => {
         hash,
         certificate_image,
       });
+      await Utils.sendMail({
+        user: seller,
+        subject: "Welcome to Inkognito",
+        filename: "registration_confirmation",
+      });
       return await seller;
     } catch (error) {
       return new Error(error);
