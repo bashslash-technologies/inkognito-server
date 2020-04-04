@@ -8,7 +8,9 @@ const AllRoutes = (broker) => {
 
   router.use("/user", require("./user")(broker));
   router.use("/vendor", require("./seller")(broker));
+    router.use("/product", require("./product")(broker));
   return router;
+
 };
 
 module.exports = AllRoutes;
