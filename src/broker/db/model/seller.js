@@ -24,7 +24,7 @@ const schema = new Schema(
       type: String,
       required: true,
     },
-    cirtificate_image: { type: String, sparse: true },
+    certificate_image: { type: String, sparse: true },
     verified: {
       type: Boolean,
       default: false,

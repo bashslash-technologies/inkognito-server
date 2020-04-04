@@ -7,6 +7,7 @@ const SellerService = ({ ORM: { Seller } }) => {
     password,
     contact,
     registration_number,
+    certificate_image,
   }) => {
     const hash = await Utils.hashPassword(password);
     try {
@@ -16,6 +17,7 @@ const SellerService = ({ ORM: { Seller } }) => {
         contact,
         registration_number,
         hash,
+        certificate_image,
       });
       return await seller;
     } catch (error) {
@@ -33,6 +35,13 @@ const SellerService = ({ ORM: { Seller } }) => {
       token,
     };
   };
+  const verifyMailToken = async ({ token }) => {
+    const isValid = await Utils.validateCipher({ token });
+    return {
+      isValid,
+    };
+  };
+  const verifyMail = async ({ new_password }) => {};
   return { create, login };
 };
 module.exports = SellerService;

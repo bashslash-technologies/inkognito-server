@@ -41,9 +41,9 @@ exports.comparePasswords = async ({ password, hash }) => {
 };
 //
 exports.generateCipher = ({ payload }) =>
-  new Promise(async function (resolve, reject) {
+  new Promise(function (resolve, reject) {
     try {
-      let cipher = await JWT.sign(payload, process.env.SECRET, {
+      let cipher = JWT.sign(payload, process.env.SECRET, {
         expiresIn: "24h",
       });
       resolve(cipher);
@@ -53,9 +53,9 @@ exports.generateCipher = ({ payload }) =>
   });
 //
 exports.validateCipher = ({ token }) =>
-  new Promise(async function (resolve, reject) {
+  new Promise(function (resolve, reject) {
     try {
-      let payload = await JWT.verify(token, process.env.SECRET);
+      let payload = JWT.verify(token, process.env.SECRET);
       resolve(payload);
     } catch (e) {
       reject(e);
