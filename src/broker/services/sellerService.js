@@ -19,8 +19,10 @@ const SellerService = ({ ORM: { Seller } }) => {
         hash,
         certificate_image,
       });
+      const token = await Utils.generateCipher({ payload: { email, hash } });
       await Utils.sendMail({
         user: seller,
+        token,
         subject: "Welcome to Inkognito",
         filename: "registration_confirmation",
       });
@@ -42,11 +44,60 @@ const SellerService = ({ ORM: { Seller } }) => {
   };
   const verifyMailToken = async ({ token }) => {
     const isValid = await Utils.validateCipher({ token });
+    const { email } = isValid;
+    const user = await Seller.findOne({ email });
+    console.log(user);
+    await user.updateOne({ $set: { verified: true } });
     return {
       isValid,
     };
   };
-  const verifyMail = async ({ new_password }) => {};
-  return { create, login };
+  const resendMail = async ({ email }) => {
+    const user = await Seller.findOne({ email });
+    if (!user) return new Error("User does not exist");
+    const { hash } = user;
+    const token = await Utils.generateCipher({ payload: { email, hash } });
+    await Utils.sendMail({
+      user,
+      token,
+      subject: "Welcome to Inkognito",
+      filename: "registration_confirmation",
+    });
+  };
+  const resetPassword = async ({ password, token }) => {
+    const isValid = await Utils.validateCipher({ token });
+    const { email } = isValid;
+    const user = await Seller.findOne({ email });
+    if (!user) return new Error("user doesn't exist");
+    const hash = await Utils.hashPassword(password);
+    await user.updateOne({ $set: { hash } });
+    return {
+      user,
+    };
+  };
+  const forgotPassword = async ({ email }) => {
+    const user = await Seller.findOne({ email });
+    if (!user) return new Error("User does not exist");
+    const { hash } = user;
+    const token = await Utils.generateCipher({ payload: { email, hash } });
+    await Utils.sendMail({
+      user,
+      token,
+      subject: "Reset password",
+      filename: "forgotpassword",
+    });
+    return {
+      user,
+      token,
+    };
+  };
+  return {
+    create,
+    login,
+    verifyMailToken,
+    resendMail,
+    resetPassword,
+    forgotPassword,
+  };
 };
 module.exports = SellerService;

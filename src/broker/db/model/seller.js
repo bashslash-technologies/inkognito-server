@@ -11,7 +11,7 @@ const schema = new Schema(
       type: String,
       trim: true,
       required: true,
-      // unique: true,
+      unique: true,
     },
     contact: {
       type: String,
