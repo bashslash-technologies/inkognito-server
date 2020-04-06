@@ -15,11 +15,11 @@ stages:
     - production
 
 test:
-  script:
-    - npm install
-    - npm run test-and-exit
- only:
-    - develop
+    script:
+        - npm install
+        - npm run test-and-exit
+    only:
+        - develop
     
 staging:
     type: deploy
