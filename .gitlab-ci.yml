@@ -6,8 +6,8 @@ before_script:
     - gem install dpl
 
 cache:
-  paths:
-    - node_modules/
+    paths:
+        - node_modules/
     
 stages:
     - test
