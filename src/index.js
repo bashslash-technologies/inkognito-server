@@ -5,7 +5,7 @@ const Broker = require("./broker");
 const startServer = async () => {
   //start broker here
   try {
-    const broker = await Broker({ DB_URI: process.env.NODE_ENV === 'development' ? process.env.DATABASE_LOCAL :  process.env.DATABASE});
+    const broker = await Broker({ DB_URI: process.env.NODE_ENV === 'development' ? process.env.DATABASE_LOCAL :  process.env.DATABASE });
 
     app.get("/", (req, res) => {
       res.send("Working");
