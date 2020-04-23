@@ -1,6 +1,6 @@
 const Mongoose = require("mongoose");
 
-const CounterSchema = new Mongoose.Schema(
+const PaymentSchema = new Mongoose.Schema(
 	{
 		_id: {
 			type: String,
@@ -15,4 +15,4 @@ const CounterSchema = new Mongoose.Schema(
 	}
 );
 
-module.exports = Mongoose.model("counter", CounterSchema);
+module.exports = Mongoose.model("payment", PaymentSchema);
