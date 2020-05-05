@@ -7,6 +7,8 @@ const ProductModel = require("./model/product");
 const SellerModel = require("./model/seller");
 const OrderModel = require("./model/order");
 const CounterModel = require("./model/counter");
+const CustomerModel = require("./model/Customer");
+const RiderModel = require("./model/Rider");
 
 const createConnection = async ({ DB_URI }) => {
 	try {
@@ -30,6 +32,8 @@ const createConnection = async ({ DB_URI }) => {
 		Product: BuildORMFromModels(ProductModel),
 		Seller: BuildORMFromModels(SellerModel),
 		Order: BuildORMFromModels(OrderModel),
+		User: BuildORMFromModels(CustomerModel),
+		Rider: BuildORMFromModels(RiderModel)
 	};
 };
 

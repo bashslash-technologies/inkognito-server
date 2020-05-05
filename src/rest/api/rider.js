@@ -1,7 +1,4 @@
 const { Router } = require("express");
-const { uploadCertificate } = require("../../broker/utility/upload");
-const multer = require("multer");
-const upload = multer();
 
 const handleResponse = (response, res, message = "Successful") => {
   if (response instanceof Error) {
@@ -24,7 +21,7 @@ module.exports = ({ SellerService }) => {
   const router = Router();
 
   router.route("/").get(async (_, res) => {
-    res.send("Seller routes are here");
+    res.send("Rider routes are here");
   });
   //Register the vendor in the system
   router
