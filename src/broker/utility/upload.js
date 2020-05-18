@@ -54,8 +54,26 @@ const uploadCertificate = async function (req, res, next) {
     next(err);
   }
 };
+const uploadLicense = async function (req, res, next) {
+  try {
+    if (!req.file) throw new Error("no file added");
+    req.body.license = uuid.v4() + "." + req.file.mimetype.split("/")[1];
+    let file = await Jimp.read(req.file.buffer);
+    file.resize(800, Jimp.AUTO);
+    makeDirectory(`${__dirname}/../../uploads`);
+    const fileDirectory = `${__dirname}/../../uploads/license`;
+    const ensureDirectoryExistence = makeDirectory(fileDirectory);
+    if (!ensureDirectoryExistence)
+      throw new Error("File directory not created");
+    file.write(`${__dirname}/../../uploads/license/${req.body.license}`);
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
 
 module.exports = {
   UploadProducts,
   uploadCertificate,
+  uploadLicense,
 };
