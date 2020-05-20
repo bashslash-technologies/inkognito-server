@@ -19,7 +19,7 @@ module.exports = ({ UserService }) => {
 		router.post("/setup", async (req, res, next) => {
 			try{
 				let result = await UserService.setup(req.body);
-				return handleSuccess(res, result, "Account created successfully");
+				return handleSuccess(res, result, "Account setup successfully");
 			}
 			catch(err){
 				next(err);
@@ -41,20 +41,20 @@ module.exports = ({ UserService }) => {
 
 
 	//VERIFICATION
-		//verify a user email
-		router.post("/forgot_password", async (req, res, next) => {
+		//verify a user phone
+		router.post("/verify", async (req, res, next) => {
 			try{
-				let result = await UserService.verifyRegistrationToken(req.body);
+				let result = await UserService.verifyCode(req.body);
 				return handleSuccess(res, result, "Sucessfully verified account");
 			}
 			catch(err){
 				next(err);
 			}
 		})
-		//resend a verification mail
-		router.post("/forgot_password", async (req, res, next) => {
+		//resend a verification code
+		router.get("/verify", async (req, res, next) => {
 			try{
-				let result = await UserService.resendCode(req.body);
+				let result = await UserService.sendVerifyCode(req.body);
 				return handleSuccess(res, result, "Code sent successfully");
 			}
 			catch(err){
@@ -65,9 +65,9 @@ module.exports = ({ UserService }) => {
 
 	//RESET
 		//handle forgot password
-		router.post("/forgot_password", async (req, res, next) => {
+		router.get("/reset", async (req, res, next) => {
 			try{
-				let result = await UserService.forgotPassword(req.body);
+				let result = await UserService.sendResetCode(req.body);
 				return handleSuccess(res, result, "Code sent successfully");
 			}
 			catch(err){
@@ -76,9 +76,20 @@ module.exports = ({ UserService }) => {
 		});
 
 		// reset password
-		router.post("/reset_password", async (req, res, next) => {
+		router.post("/reset", async (req, res, next) => {
 			try{
-				let result = await UserService.resetPassword(req.body);
+				let result = await UserService.verifyResetCode(req.body);
+				return handleSuccess(res, result, "Password reset successful");
+			}
+			catch(err){
+				next(err);
+			}
+		});
+
+		// reset password
+		router.post("/password", async (req, res, next) => {
+			try{
+				let result = await UserService.resetPassword(req.user_id, req.body);
 				return handleSuccess(res, result, "Password reset successful");
 			}
 			catch(err){

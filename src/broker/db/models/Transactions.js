@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const mongoose = require("mongoose");
 
 const TransactionSchema = new mongoose.Schema({
 	user: {
@@ -20,4 +19,4 @@ const TransactionSchema = new mongoose.Schema({
 
 });
 
-module.exports = mongoose.model("trips", TransactionSchema);
+module.exports = mongoose.model("transactions", TransactionSchema);

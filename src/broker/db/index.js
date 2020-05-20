@@ -1,34 +1,46 @@
-const Mongoose = require("mongoose");
+const mongoose = require("mongoose");
 const boot = require("./boot");
 
-const createConnection = async ({ DB_URI }) => {
-	try {
-		await Mongoose.connect(DB_URI, {
+const createConnection = async({ DB_URI }) => {
+
+	await mongoose
+		.connect(DB_URI, {
+			useUnifiedTopology: true,
 			useNewUrlParser: true,
 			useCreateIndex: true,
-			useFindAndModify: false,
-			useUnifiedTopology: true,
+			useFindAndModify: false
+		})
+		.then(async() => {
+			console.log(`** Database on ${DB_URI}`);
+			await require("./models/Counters").findOneAndUpdate({_id:'orders'}, {} ,{ upsert: true, new: true, setDefaultsOnInsert: true });
+		})
+		.catch(err => {
+			console.error(err);
 		});
-		console.log("Database connected successfully");
-		await require("./models/Counters").findOneAndUpdate({_id:'order'}, {} ,{ upsert: true, new: true, setDefaultsOnInsert: true });
-	} catch (e) {
-		throw new Error(e);
-	}
+
+	let Cashouts = require("./models/Cashouts");
+	let Categories = require("./models/Categories");
+	let Counters = require("./models/Counters");
+	let Orders = require("./models/Orders");
+	let Products = require("./models/Products");
+	let Transactions = require("./models/Transactions");
+	let Trips = require("./models/Trips");
+	let Users = require("./models/Users");
 
 	//boot system
-	await boot();
+	//await boot();
 
 	//return the models
-	return {
-		Cashouts: require("./models/Cashouts"),
-		Categories: require("./models/Categories"),
-		Counters: require("./models/Counters"),
-		Orders: require("./models/Orders"),
-		Products: require("./models/Products"),
-		Transactions: require("./models/Transactions"),
-		Trips: require("./models/Trips"),
-		Users: require("./models/Users"),
-	};
+	return ({
+		Cashouts,
+		Categories,
+		Counters,
+		Orders,
+		Products,
+		Transactions,
+		Trips,
+		Users,
+	});
 };
 
 module.exports = createConnection;

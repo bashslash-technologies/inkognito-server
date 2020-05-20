@@ -75,7 +75,6 @@ OrderSchema.virtual('status').get(function(){
 	return 'N/A'
 })
 
-
 OrderSchema.pre('save', function(next) {
     CounterModel.findByIdAndUpdate({_id: 'order'}, {$inc: { seq: 1} }, (err, counter) => {
         if(err){ return next(err);}

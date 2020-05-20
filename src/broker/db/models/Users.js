@@ -22,6 +22,9 @@ const UserSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	business_name: {
+		type: String,
+	},
 	documents: {
 		licence: {
 			number: {
@@ -54,7 +57,7 @@ const UserSchema = new mongoose.Schema({
 	},
 	role: {
 		type: String,
-		enum: ['USER, DELIVERY, VENDOR, ADMIN'],
+		enum: ['USER', 'DELIVERY', 'VENDOR', 'ADMIN'],
 		required: true,
 		default: 'USER',
 	},
@@ -78,18 +81,44 @@ UserSchema.virtual('email_verified').get(function(){
 })
 
 UserSchema.virtual('isVerified').get(function(){
+	return !!this.util.verification;
+})
+
+UserSchema.virtual('isVerifiedDocuments').get(function(){
 	switch(this.role){
-		case 'USER':
-			return !!this.util.verification
 		case 'DELIVERY':
-			return !!this.util.verification
-				&& !!(this.documents.licence && this.documents.license.verified);
+			return !!(
+				this.documents ?
+					this.documents.licence ?
+						this.documents.licence.verified
+						: false
+					: false
+			);
 		case 'VENDOR':
-			return !!this.util.verification
-				&& !!(this.documents.licence && this.documents.license.verified)
-				&& !!(this.documents.identification && this.documents.identification.verified);
+			return (
+				!!(
+					this.documents ?
+						this.documents.licence ?
+							this.documents.licence.verified
+							: false
+						: false
+				)
+				&& !!(
+					this.documents ?
+						this.documents.identification ?
+							this.documents.identification.verified
+							: false
+						: false
+				)
+			);
 		default:
-			return !!this.util.verification;
+			return !!(
+				this.documents ?
+					this.documents.licence ?
+						this.documents.licence.verified
+						: false
+					: false
+			);
 	}
 })
 

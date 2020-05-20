@@ -1,9 +1,8 @@
 const ORMBuilder = require("./db");
 
-module.exports = async ({ DB_URI = "mongodb://localhost:27017/inkognito" }) => {
+module.exports = async({ DB_URI }) => {
 	try {
 		const ORM = await ORMBuilder({ DB_URI });
-
 		return {
 			CashoutService: require("./services/Cashouts")({ ORM }),
 			CategoryService: require("./services/Categories")({ ORM }),
@@ -14,7 +13,8 @@ module.exports = async ({ DB_URI = "mongodb://localhost:27017/inkognito" }) => {
 			UserService: require("./services/Users")({ ORM }),
 		};
 
-	} catch (e) {
-		return new Error(e);
+	}
+	catch (err) {
+		throw err;
 	}
 };

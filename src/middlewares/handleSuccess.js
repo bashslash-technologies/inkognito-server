@@ -3,7 +3,6 @@ const HandleSuccess = function (res, data, message) {
 		.status(200)
 		.json({
 			success: true,
-			error: null,
 			message: message || 'successful',
 			payload: data,
 		});

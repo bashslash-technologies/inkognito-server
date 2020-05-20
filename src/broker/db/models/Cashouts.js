@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const mongoose = require("mongoose");
 
 const CashoutSchema = new mongoose.Schema({
 	user: {
@@ -10,12 +9,6 @@ const CashoutSchema = new mongoose.Schema({
 	amount: {
 		type: Number,
 		min: 10,
-		required: true
-	},
-	status: {
-		type: String,
-		enum: ['PENDING', 'PAID'],
-		default: 'PAID',
 		required: true
 	},
 	stamps: {

@@ -1,12 +1,11 @@
 const mongoose = require("mongoose");
 
-const CounterSchema = new mongoose.Schema(
+const CounterSchema = mongoose.Schema(
 	{
 		_id: {
 			type: String,
-			unique: true,
 			required: true,
-			enum: ['order', 'payment', 'cashout'],
+			enum: ['orders', 'trips', 'transactions', 'cashouts'],
 		},
 		seq: {
 			type: Number,

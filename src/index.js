@@ -2,10 +2,11 @@ const app = require("./app");
 const API = require("./api");
 const Broker = require("./broker");
 
-const startServer = async () => {
+const startServer = async() => {
 	//start broker here
 	try {
 		const broker = await Broker({ DB_URI: process.env.DATABASE_URI });
+		console.log(broker)
 
 		app.get("/", (req, res) => {
 			res.send("Working");
