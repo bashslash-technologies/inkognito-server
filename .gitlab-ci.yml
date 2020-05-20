@@ -10,7 +10,7 @@ cache:
         - node_modules/
     
 stages:
-    # - test
+    - test
     - staging
     - production
 
@@ -21,7 +21,7 @@ test:
         - npm install
         - npm run test-and-exit
     only:
-        - develop
+        - feature
     
 staging:
     type: deploy
