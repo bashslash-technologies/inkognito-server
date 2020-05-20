@@ -1,13 +1,5 @@
 const Mongoose = require("mongoose");
-const BuildORMFromModels = require("./buildORMFromModels");
 const boot = require("./boot");
-
-//models
-const ProductModel = require("./model/product");
-const SellerModel = require("./model/seller");
-const OrderModel = require("./model/order");
-const CounterModel = require("./model/counter");
-const PaymentModel = require("./model/payment");
 
 const createConnection = async ({ DB_URI }) => {
 	try {
@@ -18,7 +10,7 @@ const createConnection = async ({ DB_URI }) => {
 			useUnifiedTopology: true,
 		});
 		console.log("Database connected successfully");
-		await CounterModel.findOneAndUpdate({_id:'order'}, {} ,{ upsert: true, new: true, setDefaultsOnInsert: true });
+		await require("./models/Counters").findOneAndUpdate({_id:'order'}, {} ,{ upsert: true, new: true, setDefaultsOnInsert: true });
 	} catch (e) {
 		throw new Error(e);
 	}
@@ -28,10 +20,14 @@ const createConnection = async ({ DB_URI }) => {
 
 	//return the models
 	return {
-		Product: BuildORMFromModels(ProductModel),
-		Seller: BuildORMFromModels(SellerModel),
-		Order: BuildORMFromModels(OrderModel),
-		Payment: BuildORMFromModels(PaymentModel),
+		Cashouts: require("./models/Cashouts"),
+		Categories: require("./models/Categories"),
+		Counters: require("./models/Counters"),
+		Orders: require("./models/Orders"),
+		Products: require("./models/Products"),
+		Transactions: require("./models/Transactions"),
+		Trips: require("./models/Trips"),
+		Users: require("./models/Users"),
 	};
 };
 

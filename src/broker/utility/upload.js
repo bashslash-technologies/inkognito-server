@@ -1,61 +1,55 @@
-const Jimp = require("jimp");
-const uuid = require("uuid");
-const { existsSync, mkdirSync } = require("fs");
+const aws = require("aws-sdk");
+const multer = require("multer");
+const multerS3 = require("multer-s3");
 
-function makeDirectory(directory) {
-  if (!existsSync(directory)) {
-    mkdirSync(directory);
-  }
-  return true;
-}
+aws.config.update({
+	accessKeyId: process.env.STORAGE_KEY_ID,
+	secretAccessKey: process.env.STORAGE_ACCESS_KEY,
+	region: process.env.STORAGE_REGION,
+});
 
-const UploadProducts = async function (req, res, next) {
-  try {
-    if (!req.files) throw new Error("No file added");
-    //ensure my directories are ready
-    makeDirectory(`${__dirname}/../../uploads`);
-    const fileDirectory = `${__dirname}/../../uploads/products`;
-    const ensureDirectoryExistence = makeDirectory(fileDirectory);
-    if (!ensureDirectoryExistence)
-      throw new Error("File directory not created");
+const s3 = new aws.S3();
 
-    req.body.images = [];
-    for (let i = 0; i < req.files.length; i++) {
-      //appending to the req.body array
-      let newName = uuid.v4() + "." + req.files[i].mimetype.split("/")[1];
-      req.body.images.push(newName);
-      //upload now
-      let file = await Jimp.read(req.files[i].buffer);
-      file.resize(800, Jimp.AUTO);
-      file.write(`${__dirname}/../../uploads/products/${newName}`);
-    }
-
-    next();
-  } catch (err) {
-    next(err);
-  }
+const fileFilter = (req, file, cb) => {
+	if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+		cb(null, true);
+	} else {
+		cb(new Error("Invalid file type, only JPEG and PNG is allowed!"), false);
+	}
 };
 
-const uploadCertificate = async function (req, res, next) {
-  try {
-    if (!req.file) throw new Error("no file added");
-    req.body.certificate_image =
-      uuid.v4() + "." + req.file.mimetype.split("/")[1];
-    let file = await Jimp.read(req.file.buffer);
-    file.resize(800, Jimp.AUTO);
-    makeDirectory(`${__dirname}/../../uploads`);
-    const fileDirectory = `${__dirname}/../../uploads/certs`;
-    const ensureDirectoryExistence = makeDirectory(fileDirectory);
-    if (!ensureDirectoryExistence)
-      throw new Error("File directory not created");
-    file.write(`${__dirname}/../../uploads/certs/${req.body.image}`);
-    next();
-  } catch (err) {
-    next(err);
-  }
-};
+const uploadProducts = multer({
+	fileFilter,
+	storage: multerS3({
+		acl: "public-read",
+		s3: s3,
+		bucket: "mongobid",
+		metadata: function (req, file, cb) {
+			cb(null, { fieldName: file.fieldname });
+		},
+		key: function (req, file, cb) {
+			let est = file.mimetype === "image/jpeg" ? ".jpeg" : ".png";
+			cb(null, "products/" + Date.now().toString() + est);
+		},
+	}),
+});
+
+const uploadDocuments = multer({
+	storage: multerS3({
+		acl: "public-read",
+		s3: s3,
+		bucket: "mongobid",
+		metadata: function (req, file, cb) {
+			cb(null, { fieldName: file.fieldname });
+		},
+		key: function (req, file, cb) {
+			let est = file.mimetype === "image/jpeg" ? ".jpeg" : ".png";
+			cb(null, "products/" + Date.now().toString() + est);
+		},
+	}),
+});
 
 module.exports = {
-  UploadProducts,
-  uploadCertificate,
-};
+	uploadProducts,
+	uploadDocuments,
+}

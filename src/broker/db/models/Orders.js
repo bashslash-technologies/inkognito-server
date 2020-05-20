@@ -1,10 +1,10 @@
 const Mongoose = require("mongoose");
 const {sumBy} = require("lodash");
-const CounterModel = require("./counter");
+const CounterModel = require("./Counters");
 
 const OrderSchema = new Mongoose.Schema(
 	{
-		orderNumber: {
+		order_number: {
 			type: String,
 			trim: true,
 		},
@@ -22,35 +22,57 @@ const OrderSchema = new Mongoose.Schema(
 				type: Number,
 				min: 1,
 			},
-			subTotal: {
-				type: Number,
-			}
 		}],
-		payment: {
-			type: Mongoose.SchemaTypes.ObjectId,
-	        required:true,
-			ref: 'payment'
+		cost: {
+			products: Number,
+			delivery: Number
 		},
-		dates: {
-			orderDate:{
+		transaction: {
+			reference: String,
+			account_type: {
+				type: String,
+				enum: ['AIRTEL', 'MTN', 'VODAFONE']
+			},
+			account_number: {
+				type: String,
+			},
+			account_holder: String
+		},
+		stamps: {
+			created:{
 				type: Date,
 				default: Date.now()
 			},
-			paidDate: Date,
-			deliveredDate: Date,
-		},
-		status: {
-			type: String,
-			enum: ['PAYMENT', 'DELIVERY', 'COMPLETED', 'CANCELLED']
-		},
+			paid: Date,
+			delivered: Date,
+			cancelled: Date,
+		}
 	},
 	{
 		timestamps: true,
 	}
 );
 
-OrderSchema.virtual('getTotalAmount').get(function(){
+OrderSchema.virtual('cartTotal').get(function(){
 	return sumby(this.cart, function(cartItem){ return cartItem.subTotal})
+})
+
+OrderSchema.virtual('status').get(function(){
+	if(this.stamps){
+		if(this.stamps.cancelled){
+			return 'CANCELLED';
+		}
+		else if(this.stamps.completed){
+			return 'COMPLETED';
+		}
+		else if(this.stamps.paid){
+			return 'DELIVERY';
+		}
+		else{
+			return 'PAYMENT'
+		}
+	}
+	return 'N/A'
 })
 
 
@@ -62,4 +84,4 @@ OrderSchema.pre('save', function(next) {
     });
 });
 
-module.exports = Mongoose.model("Order", OrderSchema);
+module.exports = Mongoose.model("orders", OrderSchema);
