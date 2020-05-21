@@ -127,6 +127,67 @@ const UserService = ({ ORM }) => {
 			throw(err)
 		}
 	};
+  //VERIFICATION
+  //verify a user contact
+  const verifyCode = async ({ username, code }) => {
+    try {
+      let __user = await ORM.Users.findOne({
+        $or: [{ email: username }, { contact: "233" + padStart(username, 9) }],
+      });
+      if (!__user) throw new Error("account not found");
+      if (!__user.util.verification)
+        throw new Error("account already verified");
+      if (__user.util.verification.code !== code)
+        throw new Error("invalid code");
+      await __user.updateOne(
+        {
+          $unset: {
+            "util.verification": 1,
+          },
+        },
+        {
+          new: true,
+        }
+      );
+      return {
+        user: __user,
+        token: await __user.generateAuthToken(),
+      };
+    } catch (err) {
+      throw err;
+    }
+  };
+  //send verification
+  const sendVerifyCode = async ({ username }) => {
+    try {
+      let __user = await ORM.Users.findOne({
+        $or: [{ email: username }, { contact: "233" + padStart(username, 9) }],
+      });
+      if (!__user) throw new Error("account not found");
+      let code = random(999999);
+      await __user.updateOne(
+        {
+          $set: {
+            util: {
+              verification: {
+                code,
+              },
+            },
+          },
+        },
+        {
+          new: true,
+        }
+      );
+      SMS.sendMessage(
+        __user.contact,
+        `Kindly verify your account with code ${code}`
+      );
+      return true;
+    } catch (err) {
+      throw err;
+    }
+  };
 
 	//AUTHENTICATION
 	// authenticate a user into the system
@@ -149,67 +210,6 @@ const UserService = ({ ORM }) => {
 				user: __user,
 				token: await __user.generateAuthToken(),
 			};
-		} catch (err) {
-			throw err;
-		}
-	};
-
-	//VERIFICATION
-	//verify a user contact
-	const verifyCode = async ({ username, code }) => {
-		try {
-			let __user = await ORM.Users.findOne({
-				$or: [{ email: username }, { contact: "233" + padStart(username, 9) }],
-			});
-			if (!__user) throw new Error("account not found");
-			if (!__user.util.verification)
-				throw new Error("account already verified");
-			if (__user.util.verification.code !== code)
-				throw new Error("invalid code");
-			await __user.updateOne(
-				{
-					$unset: {
-						"util.verification": 1,
-					},
-				},
-				{
-					new: true,
-				}
-			);
-			return {
-				user: __user,
-				token: await __user.generateAuthToken(),
-			};
-		} catch (err) {
-			throw err;
-		}
-	};
-	//send verification
-	const sendVerifyCode = async ({ username }) => {
-		try {
-			let __user = await ORM.Users.findOne({
-				$or: [{ email: username }, { contact: "233" + padStart(username, 9) }],
-			});
-			if (!__user) throw new Error("account not found");
-			await __user.updateOne(
-				{
-					$set: {
-						util: {
-							verification: {
-								code: random(999999),
-							},
-						},
-					},
-				},
-				{
-					new: true,
-				}
-			);
-			SMS.sendMessage(
-				"233" + padStart(__user.contact, 9),
-				`Kindly verify your account with code ${__user.util.verification.code}`
-			);
-			return true;
 		} catch (err) {
 			throw err;
 		}
@@ -243,37 +243,37 @@ const UserService = ({ ORM }) => {
 			throw err;
 		}
 	};
-
-	//send reset code
-	const sendResetCode = async ({ username }) => {
-		try {
-			let __user = await ORM.Users.findOne({
-				$or: [{ email: username }, { contact: "233" + padStart(username, 9) }],
-			});
-			if (!__user) throw new Error("account not found");
-			await __user.updateOne(
-				{
-					$set: {
-						util: {
-							reset: {
-								code: random(999999),
-							},
-						},
-					},
-				},
-				{
-					new: true,
-				}
-			);
-			SMS.sendMessage(
-				__user.contact,
-				`Kindly verify your account with code ${__user.util.reset.code}`
-			);
-			return true;
-		} catch (err) {
-			throw err;
-		}
-	};
+ //send reset code
+ const sendResetCode = async ({ username }) => {
+    try {
+      let __user = await ORM.Users.findOne({
+        $or: [{ email: username }, { contact: "233" + padStart(username, 9) }],
+      });
+      if (!__user) throw new Error("account not found");
+      let code = random(999999);
+      await __user.updateOne(
+        {
+          $set: {
+            util: {
+              reset: {
+                code,
+              },
+            },
+          },
+        },
+        {
+          new: true,
+        }
+      );
+      SMS.sendMessage(
+        __user.contact,
+        `Kindly verify your account with code ${code}`
+      );
+      return __user;
+    } catch (err) {
+      throw err;
+    }
+  };
 
 	//reset password
 	const resetPassword = async (user_id, { password }) => {

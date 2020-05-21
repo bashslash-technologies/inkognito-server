@@ -55,13 +55,17 @@ const UserSchema = new mongoose.Schema(
             },
         },
         role: {
-            type: String,
+        type: String,
             enum: ["USER", "DELIVERY", "VENDOR", "ADMIN"],
             required: true,
             default: "USER",
         },
         util: {
             verification: {
+                code: String,
+                expiry: Date,
+            },
+            reset: {
                 code: String,
                 expiry: Date,
             },
@@ -95,15 +99,15 @@ UserSchema.virtual("isVerifiedDocuments").get(function () {
         case "VENDOR":
             return (
                 !!(this.documents
-                    ? this.documents.licence
-                        ? this.documents.licence.verified
-                        : false
-                    : false) &&
+                ? this.documents.licence
+                    ? this.documents.licence.verified
+                    : false
+                : false) &&
                 !!(this.documents
-                    ? this.documents.identification
-                        ? this.documents.identification.verified
-                        : false
-                    : false)
+                ? this.documents.identification
+                    ? this.documents.identification.verified
+                    : false
+                : false)
             );
         default:
             return !!(this.documents
