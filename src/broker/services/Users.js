@@ -1,5 +1,5 @@
 const SMS = require("../utility/SMS");
-const {random, padStart} = require('lodash');
+const {random, padStart, toUpper} = require('lodash');
 
 const UserService = ({ ORM }) => {
 	//REGISTERATON
@@ -255,6 +255,16 @@ const UserService = ({ ORM }) => {
 			}
 		};
 
+	//RETRIVE USERS
+		const getUsers = async ({role = 'user'}) => {
+			try {
+				return await ORM.Users.find({role: toUpper(role)})
+			}
+			catch (err) {
+				throw err
+			}
+		}
+
 	return {
 		create,
 		setup,
@@ -263,7 +273,8 @@ const UserService = ({ ORM }) => {
 		sendVerifyCode,
 		verifyResetCode,
 		sendResetCode,
-		resetPassword
+		resetPassword,
+		getUsers
 	};
 };
 

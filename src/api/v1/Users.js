@@ -97,5 +97,16 @@ module.exports = ({ UserService }) => {
 			}
 		});
 
+	//GET USERS
+		router.get("/delivery", async (req, res, next) => {
+			try{
+				let result = await UserService.getUsers(req.query);
+				return handleSuccess(res, result, "successful");
+			}
+			catch(err){
+				next(err);
+			}
+		})
+
 	return router;
 };
