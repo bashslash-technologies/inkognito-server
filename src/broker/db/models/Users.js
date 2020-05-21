@@ -36,7 +36,6 @@ const UserSchema = new mongoose.Schema(
                 },
                 verified: {
                     type: Boolean,
-                    default: false,
                 },
             },
             identification: {
@@ -52,7 +51,6 @@ const UserSchema = new mongoose.Schema(
                 },
                 verified: {
                     type: Boolean,
-                    default: false,
                 },
             },
         },

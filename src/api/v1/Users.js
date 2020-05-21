@@ -1,5 +1,6 @@
 const {Router} = require("express");
-const handleSuccess = require("../../middlewares/handleSuccess")
+const {handleSuccess, resolveProviders, resolveUser, resolveAdmin} = require("../../middlewares")
+const {uploadDocuments} = require("../../broker/utility/upload");
 
 module.exports = ({UserService}) => {
     const router = Router();
@@ -15,14 +16,24 @@ module.exports = ({UserService}) => {
         }
     });
     //setup a user
-    router.post("/setup", async (req, res, next) => {
-        try {
-            let result = await UserService.setup(req.body);
-            return handleSuccess(res, result, "Account setup successfully");
-        } catch (err) {
-            next(err);
+    router.post(
+        "/setup",
+        resolveProviders,
+        uploadDocuments.fields([
+            {name: 'licence.certificate', maxCount: 2},
+            {name: 'identification.certificate', maxCount: 2}
+        ]), 
+        async (req, res, next) => {
+            console.log(req.files)
+           /* try {
+                let result = await UserService.setup(req.user_id, req.body);
+                return handleSuccess(res, result, "Account setup successfully");
+            } catch (err) {
+                next(err);
+            }*/
+            res.sendStatus(200)
         }
-    });
+    );
 
 
     //AUTHENTICATION
@@ -80,7 +91,7 @@ module.exports = ({UserService}) => {
     });
 
     // reset password
-    router.post("/password", async (req, res, next) => {
+    router.post("/password", resolveUser, async (req, res, next) => {
         try {
             let result = await UserService.resetPassword(req.user_id, req.body);
             return handleSuccess(res, result, "Password reset successful");
@@ -90,7 +101,7 @@ module.exports = ({UserService}) => {
     });
 
     //GET USERS
-    router.get("/", async (req, res, next) => {
+    router.get("/", resolveAdmin, async (req, res, next) => {
         try {
             let result = await UserService.getUsers(req.query);
             return handleSuccess(res, result, "successful");

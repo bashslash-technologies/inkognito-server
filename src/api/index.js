@@ -1,6 +1,4 @@
-const NotFound = require("../middlewares/notFound");
-const UNAUTHORIZED = require("../middlewares/unAuthorized");
-const HandleError = require("../middlewares/handleErrors");
+const {handleNotFound, handleErrors, handleUnAuthorized} = require("../middlewares");
 
 exports.setup = (app, broker) => {
 	app.get("/", (req, res) => {
@@ -16,11 +14,11 @@ exports.setup = (app, broker) => {
 	app.use("/api/v1", require("./v1")(broker));
 
 	//handle 404 errors
-	app.use(NotFound);
+	app.use(handleNotFound);
 
 	//handle unauthorization
-	app.use(UNAUTHORIZED);
+	app.use(handleUnAuthorized);
 
 	//catch errors
-	app.use(HandleError);
+	app.use(handleErrors);
 };

@@ -23,7 +23,7 @@ const uploadProducts = multer({
 	storage: multerS3({
 		acl: "public-read",
 		s3: s3,
-		bucket: "mongobid",
+		bucket: "mong.o",
 		metadata: function (req, file, cb) {
 			cb(null, { fieldName: file.fieldname });
 		},
@@ -38,13 +38,13 @@ const uploadDocuments = multer({
 	storage: multerS3({
 		acl: "public-read",
 		s3: s3,
-		bucket: "mongobid",
+		bucket: "mong.o",
 		metadata: function (req, file, cb) {
 			cb(null, { fieldName: file.fieldname });
 		},
 		key: function (req, file, cb) {
 			let est = file.mimetype === "image/jpeg" ? ".jpeg" : ".png";
-			cb(null, "products/" + Date.now().toString() + est);
+			cb(null, "documents/" + Date.now().toString() + est);
 		},
 	}),
 });

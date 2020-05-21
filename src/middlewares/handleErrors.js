@@ -1,5 +1,9 @@
 const HandleError = function (err, req, res, next) {
-	console.log(err.message)
+	if(err.message){
+		console.log(err.message)
+	}else{
+		console.log(err)
+	}
 	res
 		.status(err.status || 200)
 		.json({
