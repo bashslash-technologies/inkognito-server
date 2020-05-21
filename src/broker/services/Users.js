@@ -153,12 +153,13 @@ const UserService = ({ ORM }) => {
         $or: [{ email: username }, { contact: "233" + padStart(username, 9) }],
       });
       if (!__user) throw new Error("account not found");
+      let code = random(999999);
       await __user.updateOne(
         {
           $set: {
             util: {
               verification: {
-                code: random(999999),
+                code,
               },
             },
           },
@@ -168,8 +169,8 @@ const UserService = ({ ORM }) => {
         }
       );
       SMS.sendMessage(
-        "233" + padStart(__user.contact, 9),
-        `Kindly verify your account with code ${__user.util.verification.code}`
+        __user.contact,
+        `Kindly verify your account with code ${code}`
       );
       return true;
     } catch (err) {
@@ -213,12 +214,13 @@ const UserService = ({ ORM }) => {
         $or: [{ email: username }, { contact: "233" + padStart(username, 9) }],
       });
       if (!__user) throw new Error("account not found");
+      let code = random(999999);
       await __user.updateOne(
         {
           $set: {
             util: {
               reset: {
-                code: random(999999),
+                code,
               },
             },
           },
@@ -229,9 +231,9 @@ const UserService = ({ ORM }) => {
       );
       SMS.sendMessage(
         __user.contact,
-        `Kindly verify your account with code ${__user.util.reset.code}`
+        `Kindly verify your account with code ${code}`
       );
-      return true;
+      return __user;
     } catch (err) {
       throw err;
     }

@@ -17,7 +17,7 @@ module.exports = ({UserService}) => {
     //setup a user
     router.post("/setup", async (req, res, next) => {
         try {
-            let result = await UserService.setup(req.body);
+            let result = await UserService.setup(req.query,req.body);
             return handleSuccess(res, result, "Account setup successfully");
         } catch (err) {
             next(err);
@@ -50,7 +50,7 @@ module.exports = ({UserService}) => {
     //resend a verification code
     router.get("/verify", async (req, res, next) => {
         try {
-            let result = await UserService.sendVerifyCode(req.body);
+            let result = await UserService.sendVerifyCode(req.query);
             return handleSuccess(res, result, "Code sent successfully");
         } catch (err) {
             next(err);
@@ -62,7 +62,7 @@ module.exports = ({UserService}) => {
     //handle forgot password
     router.get("/reset", async (req, res, next) => {
         try {
-            let result = await UserService.sendResetCode(req.body);
+            let result = await UserService.sendResetCode(req.query);
             return handleSuccess(res, result, "Code sent successfully");
         } catch (err) {
             next(err);
@@ -82,7 +82,7 @@ module.exports = ({UserService}) => {
     // reset password
     router.post("/password", async (req, res, next) => {
         try {
-            let result = await UserService.resetPassword(req.user_id, req.body);
+            let result = await UserService.resetPassword(req.query.user_id, req.body);
             return handleSuccess(res, result, "Password reset successful");
         } catch (err) {
             next(err);
