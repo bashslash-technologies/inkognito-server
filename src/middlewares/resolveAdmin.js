@@ -12,7 +12,7 @@ const ResolveAdmin = function(req, res, next){
 			issuer: 'inkognito'
 		});
 		if (decoded.role !== 'ADMIN') return res.status(403).send('access denied, insufficient permissions');
-		req.user_id = decoded.user_id;
+		req.user_id = decoded._id;
 		next();
 	} catch (err){
 		res.status(400).send('access denied, invalid token')

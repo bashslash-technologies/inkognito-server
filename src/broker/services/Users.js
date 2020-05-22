@@ -42,7 +42,14 @@ const UserService = ({ ORM }) => {
 		}
 	};
 	//setup a user
-	const setup = async (user_id, { licence, identification, business_name }) => {
+	const setup = async (user_id, {
+		licence_number,
+		business_name,
+		identification_type,
+		identification_number,
+		licence_certificate,
+		identification_certificate,
+	}) => {
 		try {
 			let __user = await ORM.Users.findById(user_id);
 			if (!__user) throw new Error("User not found");
@@ -52,29 +59,28 @@ const UserService = ({ ORM }) => {
 					documents: {},
 				},
 			};
-			if (!(licence && licence.number && licence.certificate)) {
+			if (!(licence_number && licence_certificate)) {
 				throw new Error("Please provide a licence");
 			}
 			updates["$set"]["documents"]["licence"] = {
-				number: licence.number,
-				certificate: licence.certificate,
+				number: licence_number,
+				certificate: licence_certificate,
 				verified: false,
 			};
 			if (__user.role === "VENDOR") {
 				if (
 					!(
-						identification &&
-						identification.number &&
-						identification.certificate &&
-						identification.id_type
+						identification_type &&
+						identification_number &&
+						identification_certificate
 					)
 				) {
 					throw new Error("Please provide a form of identification");
 				}
 				updates["$set"]["documents"]["identification"] = {
-					number: identification.number,
-					certificate: identification.certificate,
-					id_type: identification.id_type,
+					number: identification_number,
+					certificate: identification_certificate,
+					id_type: identification_type,
 					verified: false,
 				};
 			}

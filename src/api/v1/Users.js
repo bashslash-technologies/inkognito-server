@@ -20,17 +20,18 @@ module.exports = ({UserService}) => {
         "/setup",
         resolveProviders,
         uploadDocuments.fields([
-            {name: 'licence.certificate', maxCount: 2},
-            {name: 'identification.certificate', maxCount: 2}
+            {name: 'licence_certificate', maxCount: 1},
+            {name: 'identification_certificate', maxCount: 1}
         ]), 
         async (req, res, next) => {
-            console.log(req)
-            /*try {
+            req.body.licence_certificate = req.files.licence_certificate[0].location;
+            req.body.identification_certificate = req.files.identification_certificate[0].location;
+            try {
                 let result = await UserService.setup(req.user_id, req.body);
                 return handleSuccess(res, result, "Account setup successfully");
             } catch (err) {
                 next(err);
-            }*/
+            }
             res.sendStatus(200)
         }
     );

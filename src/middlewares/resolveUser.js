@@ -11,7 +11,7 @@ const ResolveUser = function(req, res, next){
 			process.env.APP_SECRET, {
 			issuer: 'inkognito'
 		});
-		req.user_id = decoded.user_id;
+		req.user_id = decoded._id;
 		next();
 	} catch (err){
 		res.status(400).send('access denied, invalid token')
