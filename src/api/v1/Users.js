@@ -111,5 +111,25 @@ module.exports = ({UserService}) => {
         }
     })
 
+    // verify licence
+    router.post("/licence", resolveAdmin, async (req, res, next) => {
+        try {
+            let result = await UserService.verifyLicence(req.body);
+            return handleSuccess(res, result, "successful");
+        } catch (err) {
+            next(err);
+        }
+    })
+
+    //verify identity
+    router.post("/identification", resolveAdmin, async (req, res, next) => {
+        try {
+            let result = await UserService.verifyIdentification(req.body);
+            return handleSuccess(res, result, "successful");
+        } catch (err) {
+            next(err);
+        }
+    })
+
     return router;
 };
