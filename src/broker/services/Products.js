@@ -1,5 +1,7 @@
 const ProductService = ({ ORM }) => {
-	const create = async ({
+	const create = async (
+		user_id,
+	{
 		name,
 		images,
 		description,
@@ -9,6 +11,7 @@ const ProductService = ({ ORM }) => {
 	}) => {
 		try {
 			let __product = new ORM.Products({
+				seller: user_id,
 				name,
 				images,
 				description,
@@ -24,7 +27,16 @@ const ProductService = ({ ORM }) => {
 		}
 	};
 
-	const read = async () => {
+	const read = async (user_id) => {
+		try {
+			return await ORM.Products.find({seller: user_id});
+		}
+		catch (err) {
+			throw err
+		}
+	};
+
+	const readAll = async () => {
 		try {
 			return await ORM.Products.find({});
 		}
@@ -34,12 +46,14 @@ const ProductService = ({ ORM }) => {
 	};
 
 	const update = async (
+		user_id,
 		_id,
 		{ name, images, description, price, stock, categories }
 	) => {
 		try {
 			let __product = await ORM.Products.findById(_id);
-			if (!__product) return new Error("Product not found");
+			if (!__product) throw new Error("Product not found");
+			if (__product.seller.toString() !== user_id.toString()) throw new Error("Product not yours")
 			await product.updateOne(
 				{
 					$set: {
@@ -65,6 +79,7 @@ const ProductService = ({ ORM }) => {
 		try {
 			let __product = await ORM.Products.findById(_id);
 			if (!__product) return new Error("Product not found");
+			if (__product.seller.toString() !== user_id.toString()) throw new Error("Product not yours")
 			//delete the product images
 			await __product.delete();
 			return true;
@@ -77,6 +92,7 @@ const ProductService = ({ ORM }) => {
 	return {
 		create,
 		read,
+		readAll,
 		update,
 		destroy 
 	};
