@@ -1,7 +1,6 @@
 const { Router } = require("express");
 const { uploadProducts } = require("../../broker/utility/upload");
-const handleSuccess = require("../../middlewares/handleSuccess")
-const multer = require("multer");
+const {handleSuccess, resolveProviders} = require("../../middlewares")
 
 module.exports = ({ ProductService }) => {
 	const router = Router();
@@ -19,10 +18,10 @@ module.exports = ({ ProductService }) => {
 			}
 		})
 		//create a product
-		.post(uploadProducts.array("files", 5), async (req, res, next) => {
+		.post(resolveProviders, uploadProducts.array("files", 5), async (req, res, next) => {
 			try{
 				req.body.images = req.files.map((file) => file.location);
-				let result = await ProductService.create(req.body);
+				let result = await ProductService.create(req.user_id, req.body);
 				return handleSuccess(res, result);
 			}
 			catch(err){
@@ -31,9 +30,9 @@ module.exports = ({ ProductService }) => {
 		});
 
 	//update a product
-	router.put("/:id", uploadProducts.array("files", 5), async (req, res, next) => {
+	router.put("/:id", resolveProviders, uploadProducts.array("files", 5), async (req, res, next) => {
 		try{
-			let result = await ProductService.update(req.params.id, req.body);
+			let result = await ProductService.update(req.user_id, req.params.id, req.body);
 			return handleSuccess(res, result);
 		}
 		catch(err){
@@ -42,9 +41,9 @@ module.exports = ({ ProductService }) => {
 	});
 
 	//delete a product
-	router.delete("/:id", async (req, res, next) => {
+	router.delete("/:id", resolveProviders, async (req, res, next) => {
 		try{
-			let result = await ProductService.destroy(req.params.id);
+			let result = await ProductService.destroy(req.user_id, req.params.id);
 			return handleSuccess(res, result);
 		}
 		catch(err){
