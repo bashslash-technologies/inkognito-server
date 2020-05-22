@@ -27,7 +27,16 @@ const ProductService = ({ ORM }) => {
 		}
 	};
 
-	const read = async () => {
+	const read = async (user_id) => {
+		try {
+			return await ORM.Products.find({seller: user_id});
+		}
+		catch (err) {
+			throw err
+		}
+	};
+
+	const readAll = async () => {
 		try {
 			return await ORM.Products.find({});
 		}
@@ -83,6 +92,7 @@ const ProductService = ({ ORM }) => {
 	return {
 		create,
 		read,
+		readAll,
 		update,
 		destroy 
 	};
