@@ -43,8 +43,9 @@ const uploadDocuments = multer({
 			cb(null, { fieldName: file.fieldname });
 		},
 		key: function (req, file, cb) {
+			const fiel = file.fieldname.split(".")[0]
 			let est = file.mimetype === "image/jpeg" ? ".jpeg" : ".png";
-			cb(null, "documents/" + Date.now().toString() + est);
+			cb(null, "documents/"+ fiel + Date.now().toString() + est);
 		},
 	}),
 });

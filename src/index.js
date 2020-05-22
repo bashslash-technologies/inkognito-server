@@ -12,6 +12,11 @@ const startServer = async() => {
 			res.send("Working");
 		});
 
+		app.use((req, res, next)=>{
+			console.log(req)
+			next()
+		})
+
 		API.setup(app, broker);
 
 		//listen on port

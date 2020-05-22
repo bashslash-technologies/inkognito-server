@@ -24,7 +24,7 @@ module.exports = ({UserService}) => {
             {name: 'identification.certificate', maxCount: 2}
         ]), 
         async (req, res, next) => {
-            console.log(req.files)
+            console.log(req)
             /*try {
                 let result = await UserService.setup(req.user_id, req.body);
                 return handleSuccess(res, result, "Account setup successfully");
