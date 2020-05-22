@@ -28,16 +28,10 @@ const OrderSchema = new mongoose.Schema(
 				min: 0,
 			}
 		},
-		transaction: {
-			reference: String,
-			account_type: {
-				type: String,
-				enum: ['AIRTEL', 'MTN', 'VODAFONE']
-			},
-			account_number: {
-				type: String,
-			},
-			account_holder: String
+		payment: {
+			authorization_url: String,
+			access_code: String,
+			reference: String
 		},
 		stamps: {
 			created:{

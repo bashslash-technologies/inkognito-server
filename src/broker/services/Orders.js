@@ -1,4 +1,5 @@
 const { groupBy, entries, sumBy, map } = require("lodash");
+const PayStack = require("../utility/PayStack");
 
 const OrderService = ({ ORM }) => {
 	//create an order
@@ -35,15 +36,32 @@ const OrderService = ({ ORM }) => {
 				cost: {
 					products: sumBy(__subcarts, 'cost'),
 					delivery: 'unknown'
-				},
-				transaction: {
-					account_holder,
-					account_number,
-					account_type
 				}
+			});
+			await PayStack
+			.transaction
+			.initialize({
+				email: __user.email,
+				name: __user.name,
+				amount: __order.cost,
+				reference: __order._id,
 			})
-			await __order.save();
-			return __order;
+			.then(async function(result){
+				if(!result.status){
+					throw new Error("an error occurred")
+				}
+				__order.payment = {
+					authorization_url: result.data.authorization_url,
+					reference: result.data.reference,
+					access_code: result.data.access_code,
+				};
+				await __order.save();
+				return __order;
+			})
+			.catch(function(err){
+				console.log(err)
+				throw new Error('cant process request now, try again later')
+			})
 		}
 		catch (err) {
 			throw err
@@ -63,11 +81,7 @@ const OrderService = ({ ORM }) => {
 	//retrieve vendor orders
 	const readProvider = async (user_id) => {
 		try {
-			let __products = await ORM.Products({vendor: user_id});
-			let __product_list = __products.map((product)=>product._id)
-			return await ORM.Orders.find({
-				'cart.vendor': user_id,
-			});
+			return await ORM.SubOrders({vendor: user_id});
 		}
 		catch (err) {
 			throw err
