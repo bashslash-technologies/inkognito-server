@@ -1,15 +1,15 @@
 const { Router } = require("express");
-const handleSuccess = require("../../middlewares/handleSuccess");
+const { handleSuccess, resolveUser, resolveProviders } = require("../../middlewares");
 
 module.exports = ({ OrderService }) => {
 	const router = Router();
 
 	router
 		.route("/")
-		//retrieve all orders
-		.get(async (req, res, next) => {
+		//retrieve my orders
+		.get(resolveUser, async (req, res, next) => {
 			try{
-				let result = await OrderService.read(req.user_id);
+				let result = await OrderService.read(req.user_id, req.query);
 				return handleSuccess(res, result);
 			}
 			catch(err){
@@ -17,9 +17,9 @@ module.exports = ({ OrderService }) => {
 			}
 		})
 		//create an order
-		.post(async (req, res, next) => {
+		.post(resolveUser, async (req, res, next) => {
 			try{
-				let result = await OrderService.create(req.body);
+				let result = await OrderService.create(req.user_id, req.body);
 				return handleSuccess(res, result);
 			}
 			catch(err){
@@ -27,10 +27,22 @@ module.exports = ({ OrderService }) => {
 			}
 		});
 
-	//update an order
-	router.put("/:id", async (req, res, next) => {
+	//get all orders
+	router.get("/providers", resolveProviders, async (req, res, next) => {
 		try{
-			let result = await OrderService.update(req.params.id, req.body);
+			let result = await OrderService.readProvider(req.user_id);
+			return handleSuccess(res, result);
+		}
+		catch(err){
+			next(err);
+		}
+
+	})
+
+	//update an order
+	router.put("/", resolveUser, async (req, res, next) => {
+		try{
+			let result = await OrderService.update(req.user_id, req.params.id, req.body);
 			return handleSuccess(res, result);
 		}
 		catch(err){
@@ -39,9 +51,9 @@ module.exports = ({ OrderService }) => {
 	});
 
 	//cancel an order
-	router.delete("/:id", async (req, res, next) => {
+	router.delete("/:id", resolveUser, async (req, res, next) => {
 		try{
-			let result = await OrderService.cancel(req.params.id);
+			let result = await OrderService.cancel(req.user_id, req.params.id);
 			return handleSuccess(res, result);
 		}
 		catch(err){

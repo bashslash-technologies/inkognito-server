@@ -29,6 +29,7 @@ const createConnection = async ({DB_URI}) => {
     let Transactions = require("./models/Transactions");
     let Trips = require("./models/Trips");
     let Users = require("./models/Users");
+    let SubOrders = require("./models/SubOrders");
 
     //boot system
     await boot();
@@ -43,6 +44,7 @@ const createConnection = async ({DB_URI}) => {
         Transactions,
         Trips,
         Users,
+        SubOrders,
     };
 };
 

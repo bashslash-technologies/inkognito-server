@@ -1,42 +1,37 @@
-const Mongoose = require("mongoose");
+const mongoose = require("mongoose");
 const {sumBy} = require("lodash");
 const CounterModel = require("./Counters");
 
-const OrderSchema = new Mongoose.Schema(
+const OrderSchema = new mongoose.Schema(
 	{
 		order_number: {
 			type: String,
 			trim: true,
 		},
 		user: {
-			type: Mongoose.SchemaTypes.ObjectId,
-			ref: 'user',
-			required: true
+			type: mongoose.SchemaTypes.ObjectId,
+			ref: 'users',
+			required: true,
 		},
 		cart: [{
-			product: {
-				type: Mongoose.SchemaTypes.ObjectId,
-				ref: 'product',
-			},
-			quantity: {
-				type: Number,
-				min: 1,
-			},
+			type: mongoose.SchemaTypes.ObjectId,
+			ref: 'suborders',
+			required: true,
 		}],
 		cost: {
-			products: Number,
-			delivery: Number
+			products: {
+				type: Number,
+				min: 0,
+			},
+			delivery: {
+				type: Number,
+				min: 0,
+			}
 		},
-		transaction: {
-			reference: String,
-			account_type: {
-				type: String,
-				enum: ['AIRTEL', 'MTN', 'VODAFONE']
-			},
-			account_number: {
-				type: String,
-			},
-			account_holder: String
+		payment: {
+			authorization_url: String,
+			access_code: String,
+			reference: String
 		},
 		stamps: {
 			created:{
@@ -83,4 +78,4 @@ OrderSchema.pre('save', function(next) {
     });
 });
 
-module.exports = Mongoose.model("orders", OrderSchema);
+module.exports = mongoose.model("orders", OrderSchema);
