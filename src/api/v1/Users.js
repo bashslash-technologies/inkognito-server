@@ -22,7 +22,7 @@ module.exports = ({UserService}) => {
         uploadDocuments.fields([
             {name: 'licence_certificate', maxCount: 1},
             {name: 'identification_certificate', maxCount: 1}
-        ]), 
+        ]),
         async (req, res, next) => {
             req.body.licence_certificate = req.files.licence_certificate[0].location;
             req.body.identification_certificate = req.files.identification_certificate[0].location;
@@ -92,7 +92,7 @@ module.exports = ({UserService}) => {
     });
 
     // reset password
-    router.post("/password", resolveUser, async (req, res, next) => {
+    router.post("/password", async (req, res, next) => {
         try {
             let result = await UserService.resetPassword(req.query.user_id, req.body);
             return handleSuccess(res, result, "Password reset successful");
