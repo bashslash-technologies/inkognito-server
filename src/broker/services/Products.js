@@ -121,9 +121,7 @@ const ProductService = ({ ORM }) => {
 		readAll,
 		update,
 		destroy,
-		readCategory,
 		readHome,
-		readSearch
 	};
 };
 
