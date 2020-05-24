@@ -11,7 +11,7 @@ const ProductService = ({ ORM }) => {
 	}) => {
 		try {
 			let __product = new ORM.Products({
-				seller: user_id,
+				vendor: user_id,
 				name,
 				images,
 				description,
@@ -29,7 +29,9 @@ const ProductService = ({ ORM }) => {
 
 	const read = async (user_id) => {
 		try {
-			return await ORM.Products.find({seller: user_id});
+			let products = await ORM.Products.find({vendor: user_id});
+			console.log(products)
+			return products
 		}
 		catch (err) {
 			throw err
@@ -98,7 +100,7 @@ const ProductService = ({ ORM }) => {
 		read,
 		readAll,
 		update,
-		destroy 
+		destroy
 	};
 };
 
