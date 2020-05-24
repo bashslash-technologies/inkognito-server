@@ -25,7 +25,9 @@ module.exports = ({UserService}) => {
         ]), 
         async (req, res, next) => {
             req.body.licence_certificate = req.files.licence_certificate[0].location;
-            req.body.identification_certificate = req.files.identification_certificate[0].location;
+            if(req.files.identification_certificate){
+                req.body.identification_certificate = req.files.identification_certificate[0].location;
+            }
             try {
                 let result = await UserService.setup(req.user_id, req.body);
                 return handleSuccess(res, result, "Account setup successfully");

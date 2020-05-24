@@ -36,9 +36,13 @@ const ProductService = ({ ORM }) => {
 		}
 	};
 
-	const readAll = async () => {
+	const readAll = async ({page, size, search}) => {
 		try {
-			return await ORM.Products.find({});
+			let query = {}
+			if(search) {
+				query.name = search;
+			}
+			return await ORM.Products.find(query, {}, {limit: size, skip: page*size})
 		}
 		catch (err) {
 			throw err
