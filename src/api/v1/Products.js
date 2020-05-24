@@ -29,27 +29,38 @@ module.exports = ({ ProductService }) => {
 			}
 		});
 
-		//update a product
-		router.put("/:id", resolveProviders, uploadProducts.array("files", 5), async (req, res, next) => {
-			try{
-				let result = await ProductService.update(req.user_id, req.params.id, req.body);
-				return handleSuccess(res, result);
-			}
-			catch(err){
-				next(err);
-			}
-		});
+	//update a product
+	router.put("/:id", resolveProviders, uploadProducts.array("files", 5), async (req, res, next) => {
+		try{
+			let result = await ProductService.update(req.user_id, req.params.id, req.body);
+			return handleSuccess(res, result);
+		}
+		catch(err){
+			next(err);
+		}
+	});
 
-		//update a product
-		router.get("/all", async (req, res, next) => {
-			try{
-				let result = await ProductService.readAll();
-				return handleSuccess(res, result);
-			}
-			catch(err){
-				next(err);
-			}
-		});
+	//update a product
+	router.get("/all", async (req, res, next) => {
+		try{
+			let result = await ProductService.readAll(req.query);
+			return handleSuccess(res, result);
+		}
+		catch(err){
+			next(err);
+		}
+	});
+
+	//read hompage
+	router.get("/home", async (req, res, next) => {
+		try{
+			let result = await ProductService.readHome();
+			return handleSuccess(res, result);
+		}
+		catch(err){
+			next(err);
+		}
+	});
 
 	//delete a product
 	router.delete("/:id", resolveProviders, async (req, res, next) => {

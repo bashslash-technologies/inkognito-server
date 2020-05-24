@@ -38,18 +38,38 @@ const ProductService = ({ ORM }) => {
 		}
 	};
 
-	const readAll = async ({page, size, search}) => {
+	const readAll = async ({page, size, search, category}) => {
 		try {
-			let query = {}
-			if(search) {
-				query.name = search;
+			let query = {};
+			if (category) {
+				query.categories = category;
 			}
-			return await ORM.Products.find(query, {}, {limit: size, skip: page*size})
+			if (search) {
+				query.name = {
+					$regex: search,
+					$options: 'i'
+				};
+			}
+			return await ORM.Products.find(query, {}, {limit: size, skip: page*size}).populate('vendor')
 		}
 		catch (err) {
 			throw err
 		}
 	};
+
+	const readHome = async () => {
+		try {
+			let __categories = await ORM.Categories.find({}).populate('vendor');
+			let __products = await ORM.Products.find().limt(10).populate('vendor');
+			return ({
+				categories: __categories,
+				products: __products,
+			})
+		}
+		catch (err) {
+			throw err;
+		}
+	}
 
 	const update = async (
 		user_id,
@@ -100,7 +120,10 @@ const ProductService = ({ ORM }) => {
 		read,
 		readAll,
 		update,
-		destroy
+		destroy,
+		readCategory,
+		readHome,
+		readSearch
 	};
 };
 
