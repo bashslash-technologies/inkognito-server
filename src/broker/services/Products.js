@@ -50,7 +50,7 @@ const ProductService = ({ ORM }) => {
 					$options: 'i'
 				};
 			}
-			return await ORM.Products.find(query, {}, {limit: size, skip: page*size}).populate('vendor')
+			return await ORM.Products.find(query, {}, {limit: Number(size), skip: page*size}).populate('vendor')
 		}
 		catch (err) {
 			throw err
@@ -60,7 +60,7 @@ const ProductService = ({ ORM }) => {
 	const readHome = async () => {
 		try {
 			let __categories = await ORM.Categories.find({}).populate('vendor');
-			let __products = await ORM.Products.find().limt(10).populate('vendor');
+			let __products = await ORM.Products.find().limit(10).populate('vendor');
 			return ({
 				categories: __categories,
 				products: __products,
