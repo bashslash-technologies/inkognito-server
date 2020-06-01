@@ -47,11 +47,11 @@ const OrderService = ({ ORM }) => {
 				user: user_id,
 				cart: map(__subcarts, '_id'),
 				delivery: {
-					d_type: delivery_type,
+					d_type: d_type,
 				},
 				cost: {
 					products: sumBy(__subcarts, 'cost'),
-					delivery: __delivery["delivery_type"]
+					delivery: __delivery[d_type]
 				}
 			});
 			await PayStack
