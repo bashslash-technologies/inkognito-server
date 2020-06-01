@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 
 const OrderService = ({ ORM }) => {
 	//create an order
-	const create = async (user_id, {cart, payment: {account_type, account_number, account_holder}, delivery: {location, delivery_type}}) => {
+	const create = async (user_id, {cart, payment: {account_type, account_number, account_holder}, delivery: {location, d_type}}) => {
 		try {
 			let __user = await ORM.Users.findById(user_id);
 			if(!__user) throw new Error("User not found")
@@ -27,6 +27,10 @@ const OrderService = ({ ORM }) => {
 			for (let [vendor, items] of entries(groupBy(__cart, 'vendor'))) {
 				let __suborder = new ORM.SubOrders({
 					vendor,
+					delivery: {
+						location: location,
+						d_type: d_type,
+					},
 					order: items,
 					cost: sumBy(items, ({price, quantity})=>(price*quantity)),
 				})
@@ -36,7 +40,7 @@ const OrderService = ({ ORM }) => {
 
 			let __delivery = await calculatePricing({
 				user_location: location,
-				vendors: map(__cart, 'vendor')
+				vendors: uniq(map(__cart, 'vendor'))
 			})
 
 			let __order = new ORM.Orders({
@@ -44,7 +48,7 @@ const OrderService = ({ ORM }) => {
 				cart: map(__subcarts, '_id'),
 				delivery: {
 					d_type: delivery_type,
-				}
+				},
 				cost: {
 					products: sumBy(__subcarts, 'cost'),
 					delivery: __delivery["delivery_type"]
@@ -129,39 +133,43 @@ const OrderService = ({ ORM }) => {
 				}
 			})
 			if(!__vendors) throw new Error('no vendors found')
-			let express = sum(__vendors.map(({location}, index)=> haversine(user_location, location))) * 0.5
-			if (__vendors.length <= 1) {
-				return ({
-					express: express
-				})
-			}
-			let __paths = {
-				'user': {}
-			}
-			__vendors.map(({location, _id})=>{
-				__paths['user'][_id] = haversine(user_location, location)
-				__paths[_id] = {}
-				__paths[_id]['user'] = haversine(user_location, location)
-			})
-			for (let i = 0; i < __vendors.length; i++) {
-				for (let j = 0; j < __vendors.length; j++) {
-					if (i !== j) {
-						__paths[__vendors[i]._id][__vendors[j]._id] = haversine(__vendors[i].location, __vendors[j].location)
-						__paths[__vendors[j]._id][__vendors[i]._id] = haversine(__vendors[i].location, __vendors[j].location)
-					}
-				}
-			}
-			const route = new Graph(__paths)
-			const costs = __vendors.map((vendor)=>route.path('user', vendor._id.toString(), {cost: true}).cost * 0.5)
-			const standard = min(costs)
-			return ({
-				standard: standard,
-				express: express,
-			})
+			return decipherLocationVendor(user_location, vendors);
 		}
 		catch (err) {
 			throw err
 		}
+	}
+
+	const decipherLocationVendor = (user_location, vendors) => {
+		let express = sum(vendors.map(({location}, index)=> haversine(user_location, location))) * 0.5
+		if (vendors.length <= 1) {
+			return ({
+				express: express
+			})
+		}
+		let __paths = {
+			'user': {}
+		}
+		vendors.map(({location, _id})=>{
+			__paths['user'][_id] = haversine(user_location, location)
+			__paths[_id] = {}
+			__paths[_id]['user'] = haversine(user_location, location)
+		})
+		for (let i = 0; i < vendors.length; i++) {
+			for (let j = 0; j < vendors.length; j++) {
+				if (i !== j) {
+					__paths[vendors[i]._id][vendors[j]._id] = haversine(vendors[i].location, vendors[j].location)
+					__paths[vendors[j]._id][vendors[i]._id] = haversine(vendors[i].location, vendors[j].location)
+				}
+			}
+		}
+		const route = new Graph(__paths)
+		const costs = vendors.map((vendor)=>route.path('user', vendor._id.toString(), {cost: true}).cost * 0.5)
+		const standard = min(costs)
+		return ({
+			standard: standard,
+			express: express,
+		})
 	}
 
 	return {

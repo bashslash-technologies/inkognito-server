@@ -18,11 +18,28 @@ const SubOrderSchema = new mongoose.Schema(
 				min: 1,
 			},
 		}],
+		delivery: {
+			trip: {
+				type: mongoose.Types.ObjectId,
+				ref: "trips",
+			},
+			location: {
+				longitude: String,
+				latitude: String,
+			},
+			d_type: {
+				type: String,	
+			}
+		},
 		cost: {
 			type: Number,
 			min: 0,
 		},
 		processed: {
+			type: Boolean,
+			default: false,
+		},
+		delivered: {
 			type: Boolean,
 			default: false,
 		}
