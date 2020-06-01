@@ -1,5 +1,8 @@
-const { groupBy, entries, sumBy, map } = require("lodash");
+const { groupBy, entries, sumBy, map, uniq, sum, min } = require("lodash");
 const PayStack = require("../utility/PayStack");
+const haversine = require("haversine");
+const Graph = require("node-dijkstra");
+const mongoose = require("mongoose");
 
 const OrderService = ({ ORM }) => {
 	//create an order
@@ -81,7 +84,7 @@ const OrderService = ({ ORM }) => {
 	//retrieve vendor orders
 	const readProvider = async (user_id) => {
 		try {
-			return await ORM.SubOrders({vendor: user_id});
+			return await ORM.SubOrders.find({vendor: user_id});
 		}
 		catch (err) {
 			throw err
@@ -108,12 +111,67 @@ const OrderService = ({ ORM }) => {
 		}
 	};
 
+	const calculatePricing = async ({user_location, vendors}) => {
+		try {
+			let __vendors = vendors.map((vendor)=>mongoose.Types.ObjectId(vendor))
+			__vendors = await ORM.Users.find({
+				_id: {
+					$in: __vendors
+				}
+			})
+			if(!__vendors) throw new Error('no vendors found')
+			let locations = [
+				{
+			      "longitude": 678,
+			      "latitude": 42
+			    },{
+			      "longitude": 231,
+			      "latitude": 42
+			    }
+			]
+			__vendors = __vendors.map((vendor, index)=>({_id: vendor._id, location: locations[index]}))
+			let express = sum(__vendors.map(({location}, index)=> haversine(user_location, location))) * 0.5
+			if (__vendors.length <= 1) {
+				return ({
+					express: express
+				})
+			}
+			let __paths = {
+				'user': {}
+			}
+			__vendors.map(({location, _id})=>{
+				__paths['user'][_id] = haversine(user_location, location)
+				__paths[_id] = {}
+				__paths[_id]['user'] = haversine(user_location, location)
+			})
+			for (let i = 0; i < __vendors.length; i++) {
+				for (let j = 0; j < __vendors.length; j++) {
+					if (i !== j) {
+						__paths[__vendors[i]._id][__vendors[j]._id] = haversine(__vendors[i].location, __vendors[j].location)
+						__paths[__vendors[j]._id][__vendors[i]._id] = haversine(__vendors[i].location, __vendors[j].location)
+					}
+				}
+			}
+			const route = new Graph(__paths)
+			const costs = __vendors.map((vendor)=>route.path('user', vendor._id.toString(), {cost: true}).cost * 0.5)
+			const standard = min(costs)
+			return ({
+				standard: standard,
+				express: express,
+			})
+		}
+		catch (err) {
+			throw err
+		}
+	}
+
 	return {
 		create,
 		read,
 		readProvider,
 		update,
-		cancel
+		cancel,
+		calculatePricing
 	};
 };
 

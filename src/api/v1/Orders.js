@@ -39,6 +39,18 @@ module.exports = ({ OrderService }) => {
 
 	})
 
+	//get pricing for order
+	router.post("/pricing", async (req, res, next) => {
+		try{
+			let result = await OrderService.calculatePricing(req.body);
+			return handleSuccess(res, result);
+		}
+		catch(err){
+			next(err);
+		}
+
+	})
+
 	//update an order
 	router.put("/", resolveUser, async (req, res, next) => {
 		try{
