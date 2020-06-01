@@ -26,7 +26,7 @@ const UserSchema = new mongoose.Schema(
         business_name: {
             type: String,
         },
-        location: {
+        business_location: {
             longitude: String,
             latitude: String,
         },

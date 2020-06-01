@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 
 const OrderService = ({ ORM }) => {
 	//create an order
-	const create = async (user_id, {cart, payment: {account_type, account_number, account_holder}, delivery: {location, d_type}}) => {
+	const create = async (user_id, {cart, delivery: {location, d_type}}) => {
 		try {
 			let __user = await ORM.Users.findById(user_id);
 			if(!__user) throw new Error("User not found")
@@ -133,7 +133,7 @@ const OrderService = ({ ORM }) => {
 				}
 			})
 			if(!__vendors) throw new Error('no vendors found')
-			return decipherLocationVendor(user_location, vendors);
+			return decipherLocationVendor(user_location, __vendors);
 		}
 		catch (err) {
 			throw err
@@ -141,7 +141,7 @@ const OrderService = ({ ORM }) => {
 	}
 
 	const decipherLocationVendor = (user_location, vendors) => {
-		let express = sum(vendors.map(({location}, index)=> haversine(user_location, location))) * 0.5
+		let express = sum(vendors.map(({business_location}, index)=> haversine(user_location, business_location))) * 0.5
 		if (vendors.length <= 1) {
 			return ({
 				express: express

@@ -51,6 +51,7 @@ const UserService = ({ ORM }) => {
       identification_number,
       licence_certificate,
       identification_certificate,
+      location
     }
   ) => {
     try {
@@ -86,6 +87,7 @@ const UserService = ({ ORM }) => {
           id_type: identification_type,
           verified: false,
         };
+        updates["$set"]["business_location"] = location;
       }
       await __user.updateOne(updates, {
         new: true,
