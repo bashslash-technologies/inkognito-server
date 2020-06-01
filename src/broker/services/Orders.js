@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 
 const OrderService = ({ ORM }) => {
 	//create an order
-	const create = async (user_id, {cart, payment: {account_type, account_number, account_holder}}) => {
+	const create = async (user_id, {cart, payment: {account_type, account_number, account_holder}, delivery: {location, delivery_type}}) => {
 		try {
 			let __user = await ORM.Users.findById(user_id);
 			if(!__user) throw new Error("User not found")
@@ -33,12 +33,21 @@ const OrderService = ({ ORM }) => {
 				await __suborder.save();
 				__subcarts.push(__suborder);
 			}
+
+			let __delivery = await calculatePricing({
+				user_location: location,
+				vendors: map(__cart, 'vendor')
+			})
+
 			let __order = new ORM.Orders({
 				user: user_id,
 				cart: map(__subcarts, '_id'),
+				delivery: {
+					d_type: delivery_type,
+				}
 				cost: {
 					products: sumBy(__subcarts, 'cost'),
-					delivery: 'unknown'
+					delivery: __delivery["delivery_type"]
 				}
 			});
 			await PayStack
@@ -46,7 +55,7 @@ const OrderService = ({ ORM }) => {
 			.initialize({
 				email: __user.email,
 				name: __user.name,
-				amount: __order.cost,
+				amount: __order.cost.products + __order.cost.delivery,
 				reference: __order._id,
 			})
 			.then(async function(result){
@@ -120,16 +129,6 @@ const OrderService = ({ ORM }) => {
 				}
 			})
 			if(!__vendors) throw new Error('no vendors found')
-			let locations = [
-				{
-			      "longitude": 678,
-			      "latitude": 42
-			    },{
-			      "longitude": 231,
-			      "latitude": 42
-			    }
-			]
-			__vendors = __vendors.map((vendor, index)=>({_id: vendor._id, location: locations[index]}))
 			let express = sum(__vendors.map(({location}, index)=> haversine(user_location, location))) * 0.5
 			if (__vendors.length <= 1) {
 				return ({

@@ -18,6 +18,12 @@ const OrderSchema = new mongoose.Schema(
 			ref: 'suborders',
 			required: true,
 		}],
+		delivery: {
+			d_type: {
+				type: String,
+				required: true
+			}
+		},
 		cost: {
 			products: {
 				type: Number,
