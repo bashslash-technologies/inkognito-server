@@ -23,14 +23,15 @@ let productionConfig = {
 	},
 
 	cache: {
-		uri: process.env.REDIS_URI,
+		host: process.env.REDIS_HOST,
+		port: process.env.REDIS_PORT,
 		password: process.env.REDIS_PASSWORD
 	},
 
 	sms: {
 		app_id: process.env.SMS_API_KEY,
 		app_secret: process.env.SMS_API_SECRET,
-		senderName: process.env.SMS_APP_NAME
+		app_name: process.env.SMS_APP_NAME
 	},
 
 	payment: {
@@ -39,6 +40,7 @@ let productionConfig = {
 	},
 
 	auth: {
+		token_expiry: process.env.TOKEN_EXPIRY,
 		reset_expiry: process.env.AUTH_RESET_EXPIRY,
 		verification_expiry: process.env.AUTH_VERIFICATION_EXPIRY,
 		locker_expiry: process.env.AUTH_LOCKER_EXPIRY,

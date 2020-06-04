@@ -3,11 +3,12 @@
 const aws = require('aws-sdk');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
+const config = require('../../../configs');
 
 aws.config.update({
-	accessKeyId: process.env.STORAGE_KEY_ID,
-	secretAccessKey: process.env.STORAGE_ACCESS_KEY,
-	region: process.env.STORAGE_REGION,
+	accessKeyId: config.storage.key_id,
+	secretAccessKey: config.storage.access_key,
+	region: config.storage.region,
 });
 
 const s3 = new aws.S3();
@@ -26,7 +27,7 @@ function uploadProduct() {
 		storage: multerS3({
 			acl: 'public-read',
 			s3: s3,
-			bucket: process.env.STORAGE_BUCKET,
+			bucket: config.storage.bucket,
 			metadata: function (req, file, cb) {
 				cb(null, { fieldName: file.fieldname });
 			},
@@ -43,7 +44,7 @@ function uploadCertificate() {
 		storage: multerS3({
 			acl: 'public-read',
 			s3: s3,
-			bucket: process.env.STORAGE_BUCKET,
+			bucket: config.storage.bucket,
 			metadata: function (req, file, cb) {
 				cb(null, { fieldName: file.fieldname });
 			},
@@ -60,7 +61,7 @@ function uploadLogo() {
 		storage: multerS3({
 			acl: 'public-read',
 			s3: s3,
-			bucket: process.env.STORAGE_BUCKET,
+			bucket: config.storage.bucket,
 			metadata: function (req, file, cb) {
 				cb(null, { fieldName: file.fieldname });
 			},
@@ -75,7 +76,7 @@ function uploadLogo() {
 function deleteFiles(files) {
 	return new Promise(function(resolve, reject) {
 		s3.deleteObjects({
-			Bucket: process.env.STORAGE_BUCKET,
+			Bucket: config.storage.bucket,
 			Delete: {
 				Objects: files.map(function(file){
 					return {
@@ -98,7 +99,7 @@ function deleteFiles(files) {
 function deleteFile(file) {
 	return new Promise(function(resolve, reject) {
 		s3.deleteObject({
-			Bucket: process.env.STORAGE_BUCKET,
+			Bucket: config.storage.bucket,
 			Key: file,
 		}, function(err, data) {
 			if(err) {

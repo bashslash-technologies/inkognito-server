@@ -1,12 +1,13 @@
 'use strict'
 
 const wittyflow = require('wittyflow');
-const {smsTemplate} = require('../../templates')
+const {smsTemplate} = require('../../templates');
+const config = require('../../../configs');
 
 wittyflow.config({
-	application_id: process.env.SMS_API_KEY,
-	application_secret: process.env.SMS_API_SECRET,
-	senderName: process.env.SMS_APP_NAME
+	application_id: config.sms.app_id,
+	application_secret: config.sms.app_secret,
+	senderName: config.sms.app_name,
 })
 
 async function sendVerification(phone, code, expiry) {

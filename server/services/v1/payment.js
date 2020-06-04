@@ -1,5 +1,6 @@
 'use strict';
 
 const PayStack = require('paystack');
+const config = require('../../../configs');
 
-module.exports = PayStack(process.env.PAYMENT_SECRET);
+module.exports = PayStack(config.payment.secret_key);

@@ -1,6 +1,7 @@
 'use strict';
 
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
+const config = require('../../configs');
 
 const ResolveAdmin = function(req, res, next){
 	const bearer_token = req.headers.authorization;
@@ -10,8 +11,8 @@ const ResolveAdmin = function(req, res, next){
 	try{
 		const decoded = jwt.verify(
 			token,
-			process.env.APP_SECRET, {
-			issuer: 'inkognito'
+			config.app.secret, {
+			issuer: config.app.name
 		});
 		if (decoded.role !== 'ADMIN') return res.status(403).send('access denied, insufficient permissions');
 		req.user_id = decoded._id;

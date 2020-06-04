@@ -2,7 +2,8 @@
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
+const config = require('../../../configs');
 
 const UserSchema = new mongoose.Schema({
 	email: {
@@ -59,8 +60,8 @@ const UserSchema = new mongoose.Schema({
 });
 
 
-UserSchema.pre("save", async function (next) {
-    if (!this.isModified("hash")) return next();
+UserSchema.pre('save', async function (next) {
+    if (!this.isModified('hash')) return next();
     try {
         let salt = await bcrypt.genSalt(10);
         let hash = await bcrypt.hash(this.hash, salt);
@@ -76,24 +77,22 @@ UserSchema.methods.comparePasswords = async function (hash) {
 };
 
 UserSchema.methods.generateAuthToken = async function () {
-	const __tomorrow = new Date();
-	__tomorrow.setDate(tomorrow.getDate() + 1);
     const token = jwt.sign(
         {
             _id: this._id,
             role: this.role,
         },
-			process.env.APP_SECRET,
+			config.app.secret,
         {
-            expiresIn: process.env.TOKEN_EXPIRY,
-            issuer: process.env.TOKEN_ISSUER,
+            expiresIn: config.auth.token_expiry,
+            issuer: config.app.name,
         }
     );
     return token;
 };
 
 UserSchema.virtual('isLocked').get(function(){
-	return this.locker.tries > 3;
+	return this.locker.tries > config.auth.locker_retries;
 });
 
 module.exports = mongoose.model('users', UserSchema);
