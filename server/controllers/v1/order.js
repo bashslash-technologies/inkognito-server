@@ -74,6 +74,16 @@ function init(io) {
 		}
 	});
 
+	router.post('/pricing', async function(req, res, next) {
+		try {
+			let result = await orderService.calculateDelivery(req.user_id, req.body);
+			handleSuccess(res, result);
+		}
+		catch(err) {
+			next(err);
+		}
+	});
+
 	return router;
 }
 

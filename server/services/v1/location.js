@@ -85,20 +85,25 @@ function getFence(location) {
 }
 
 function calculatePricing(location_a, location_b) {
-	let __distance = haversine(location_a, location_b, {unit: 'meter'});
-	let __thresholdMapping = config.rates;
-	let __express = __distance * config.base_rate;
-	for (let index = 0; index < __thresholdMapping.length; index++) {
-		if( __distance < __thresholdMapping[index].threshold) {
-			__express = __distance * __thresholdMapping[index].rate;
-			break;
+	try{ 
+		let __distance = haversine(location_a, location_b, {unit: 'meter'});
+		let __thresholdMapping = config.rates;
+		let __express = __distance * config.base_rate;
+		for (let index = 0; index < __thresholdMapping.length; index++) {
+			if( __distance < __thresholdMapping[index].threshold) {
+				__express = __distance * __thresholdMapping[index].rate;
+				break;
+			}
 		}
+		let __standard = 15;
+		return ({
+			standard: __standard,
+			express: __express,
+		})
 	}
-	let __standard = 15;
-	return ({
-		standard: __standard,
-		express: __express,
-	})
+	catch(err) {
+		throw err;
+	}
 }
 
 module.exports = {

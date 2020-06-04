@@ -24,14 +24,18 @@ async function createOrder(user_id, {cart, location: {longitude, latitude}, deli
 				quantity,
 			})
 		})
-		let __delivery_cost = locationService.calculatePricing(location, __cart[0].shop.location)
+		let [longitude_a, latitude_a] = __cart[0].shop.location.coordinates;
+		let __delivery_cost = locationService.calculatePricing({longitude, latitude}, {longitude_a, latitude_a})
 		let __delivery = new Trip({
-			start_point: __cart[0].shop.location,
+			start_point: {
+				type: 'Point',
+				coordinates: [longitude_a, latitude_a]
+			},
 			end_point: {
 				type: 'Point',
 				coordinates: [longitude, latitude]
 			},
-			price: __delivery_cost
+			price: __delivery_cost[delivery_type]
 		})
 		let __order = new Order({
 			user_id: user_id,
@@ -196,11 +200,26 @@ async function retrieveOrders(admin_id, {page, size}) {
 	}
 }
 
+async function calculateDelivery(user_id, {user_location, shop_ids}) {
+	try {
+		let __shop = await Shop.findById(shop_ids[0]);
+		let [longitude, latitude] = __shop.location.coordinates;
+		let __prices = locationService.calculatePricing(user_location, {longitude, latitude})
+		return {
+			prices: __prices,
+		};
+	}
+	catch (err) {
+		throw err;	
+	}
+}
+
 module.exports = {
 	createOrder: createOrder,
 	updateOrder: updateOrder,
 	updateOrderReady: updateOrderReady,
 	retrieveOrdersShop: retrieveOrdersShop,
 	retrieveOrdersUser: retrieveOrdersUser,
+	calculateDelivery: calculateDelivery,
 	retrieveOrders: retrieveOrders
 };

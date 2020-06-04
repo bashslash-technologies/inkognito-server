@@ -152,6 +152,20 @@ API_ROUTES = {
 			},
 			params: {},
 		},
+		{
+			name: 'get price of delivery',
+			path: '/orders/pricing',
+			method: 'POST',
+			body: {
+				'user_location': {
+					'longitude': Number,
+					'latitude': Number,
+				},
+				'shop_ids': [String]
+			},
+			query: {},
+			params: {},
+		},
 	],
 	products: [
 		{
