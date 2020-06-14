@@ -1,9 +1,11 @@
 'use strict';
 
+const {toNumber} = require('lodash');
+
 let localConfig = {
 	app: {
 		hostname: 'localhost',
-		port: process.env.PORT,
+		port: toNumber(process.env.PORT),
 		secret: process.env.APP_SECRET,
 		name: 'inkognito demo'
 	},
@@ -24,7 +26,7 @@ let localConfig = {
 
 	cache: {
 		host: process.env.REDIS_HOST,
-		port: process.env.REDIS_PORT,
+		port: toNumber(process.env.REDIS_PORT),
 		password: process.env.REDIS_PASSWORD
 	},
 
@@ -40,11 +42,11 @@ let localConfig = {
 	},
 
 	auth: {
-		token_expiry: process.env.TOKEN_EXPIRY,
-		reset_expiry: process.env.RESET_EXPIRY,
-		verification_expiry: process.env.VERIFICATION_EXPIRY,
-		locker_expiry: process.env.LOCKER_EXPIRY,
-		locker_retries: process.env.LOCKER_RETRIES,
+		token_expiry: toNumber(process.env.AUTH_TOKEN_EXPIRY),
+		reset_expiry: toNumber(process.env.AUTH_RESET_EXPIRY),
+		verification_expiry: toNumber(process.env.AUTH_VERIFICATION_EXPIRY),
+		locker_expiry: toNumber(process.env.AUTH_LOCKER_EXPIRY),
+		locker_retries: toNumber(process.env.AUTH_LOCKER_RETRIES),
 	}
 };
 

@@ -2,8 +2,9 @@
 
 const smsService = require('./sms');
 const moment = require('moment');
-const {padStart} = require('lodash');
+const {padStart, random} = require('lodash');
 const {User} = require('../../models/v1');
+const config = require('../../../configs');
 
 async function loginUser({ username, password, role }) {
 	try {
@@ -14,7 +15,7 @@ async function loginUser({ username, password, role }) {
 		if (!__user) throw new Error('account not found');
 		if (!__user.isVerified) {
 			let __code = padStart(random(999999), 6, '0');
-			let __expiry = new Date(new Date().getTime() + process.env.VERIFICATION_EXPIRY);
+			let __expiry = new Date().setTime(new Date().getTime() + config.auth.verification_expiry);
 			await __user.updateOne(
 				{
 					$set: {
@@ -34,7 +35,7 @@ async function loginUser({ username, password, role }) {
 		if(__user.isLocked) throw new Error('sorry your account has been locked, kindly retry after ' + moment().calendar(__user.locker.expiry));
 		let isValid = await __user.comparePasswords(password);
 		if (!isValid) {
-			const __expiry = new Date(new Date().getTime() + process.env.RESET_EXPIRY)
+			const __expiry = new Date(new Date().getTime() + config.auth.reset_expiry)
 			await __user.updateOne({
 				$inc: {
 					'locker.tries': 1,
@@ -67,7 +68,9 @@ async function registerUser({ email, phone, name, password, role }) {
 		});
 		if (_user) throw new Error('account already exists');
 		let __code = padStart(random(999999), 6, '0');
-		let __expiry = new Date(new Date().getTime() + process.env.VERIFICATION_EXPIRY);
+		let __expiry = new Date(new Date().getTime() + config.auth.verification_expiry);
+		console.log(config.auth.verification_expiry)
+		console.log(__expiry)
 		let __user = new User({
 			email: email,
 			phone: '233' + padStart(phone, 9),
@@ -98,7 +101,7 @@ async function sendVerification({ username }) {
 		});
 		if (!__user) throw new Error('account not found');
 		let __code = padStart(random(999999), 6, '0');
-		let __expiry = new Date(new Date().getTime() + process.env.VERIFICATION_EXPIRY);
+		let __expiry = new Date(new Date().getTime() + config.auth.verification_expiry);
 		await __user.updateOne(
 			{
 				$set: {
@@ -129,7 +132,7 @@ async function verifyUser({username, code}) {
 		if (!__user.verification) throw new Error('account already verified');
 		if (new Date() > new Date(__user.verification.expiry)) {
 			let __code = padStart(random(999999), 6, '0');
-			let __expiry = new Date(new Date().getTime() + process.env.VERIFICATION_EXPIRY);
+			let __expiry = new Date(new Date().getTime() + config.auth.verification_expiry);
 			await __user.updateOne(
 				{
 					$set: {
@@ -146,7 +149,9 @@ async function verifyUser({username, code}) {
 			smsService.sendVerification(__user.phone, __code, __expiry)
 			throw new Error('reset code expired check new code');
 		}
-		if (__user.verification.code !== code) throw new Error('invalid code');
+		console.log(code)
+		console.log(__user.verification.code)
+		if (String(__user.verification.code) !== String(code)) throw new Error('invalid code');
 		await __user.updateOne(
 			{
 				$unset: {
@@ -174,7 +179,7 @@ async function sendReset({username}) {
 		});
 		if (!__user) throw new Error('account not found');
 		let __code = padStart(random(999999), 6, '0');
-		let __expiry = new Date(new Date().getTime() + process.env.RESET_EXPIRY);
+		let __expiry = new Date(new Date().getTime() + config.auth.reset_expiry);
 		await __user.updateOne(
 			{
 				$set: {
