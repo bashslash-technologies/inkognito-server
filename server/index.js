@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
+const {handleError, handleNotFound} = require('./middlewares');
 require('./cache');
 
 module.exports = function() {
@@ -48,6 +49,9 @@ module.exports = function() {
             }
         });
         routes.init(app, io);
+        
+        app.use(handleError);
+        app.use(handleNotFound);
     };
 
     let start = function() {

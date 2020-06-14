@@ -2,7 +2,7 @@
 
 const smsService = require('./sms');
 const moment = require('moment');
-const config = require('../../../configs');
+const {padStart} = require('lodash');
 const {User} = require('../../models/v1');
 
 async function loginUser({ username, password, role }) {
@@ -12,9 +12,9 @@ async function loginUser({ username, password, role }) {
 			role: role?role:'USER'
 		});
 		if (!__user) throw new Error('account not found');
-		if (__user.verification) {
+		if (!__user.isVerified) {
 			let __code = padStart(random(999999), 6, '0');
-			let __expiry = new Date(new Date().getTime() + config.auth.verification_expiry);
+			let __expiry = new Date(new Date().getTime() + process.env.VERIFICATION_EXPIRY);
 			await __user.updateOne(
 				{
 					$set: {
@@ -34,7 +34,7 @@ async function loginUser({ username, password, role }) {
 		if(__user.isLocked) throw new Error('sorry your account has been locked, kindly retry after ' + moment().calendar(__user.locker.expiry));
 		let isValid = await __user.comparePasswords(password);
 		if (!isValid) {
-			const __expiry = new Date(new Date().getTime() + config.auth.locker_expiry)
+			const __expiry = new Date(new Date().getTime() + process.env.RESET_EXPIRY)
 			await __user.updateOne({
 				$inc: {
 					'locker.tries': 1,
@@ -63,11 +63,11 @@ async function loginUser({ username, password, role }) {
 async function registerUser({ email, phone, name, password, role }) {
 	try {
 		let _user = await User.findOne({
-			$or: [{ email }, { phone: '233' + padStart(contact, 9) }],
+			$or: [{ email }, { phone: '233' + padStart(phone, 9) }],
 		});
 		if (_user) throw new Error('account already exists');
 		let __code = padStart(random(999999), 6, '0');
-		let __expiry = new Date(new Date().getTime() + config.auth.verification_expiry);
+		let __expiry = new Date(new Date().getTime() + process.env.VERIFICATION_EXPIRY);
 		let __user = new User({
 			email: email,
 			phone: '233' + padStart(phone, 9),
@@ -94,11 +94,11 @@ async function registerUser({ email, phone, name, password, role }) {
 async function sendVerification({ username }) {
 	try {
 		let __user = await User.findOne({
-			$or: [{ email: username }, { contact: '233' + padStart(username, 9) }],
+			$or: [{ email: username }, { phone: '233' + padStart(username, 9) }],
 		});
 		if (!__user) throw new Error('account not found');
 		let __code = padStart(random(999999), 6, '0');
-		let __expiry = new Date(new Date().getTime() + config.auth.verification_expiry);
+		let __expiry = new Date(new Date().getTime() + process.env.VERIFICATION_EXPIRY);
 		await __user.updateOne(
 			{
 				$set: {
@@ -123,13 +123,13 @@ async function sendVerification({ username }) {
 async function verifyUser({username, code}) {
 	try {
 		let __user = await User.findOne({
-			$or: [{ email: username }, { contact: '233' + padStart(username, 9) }],
+			$or: [{ email: username }, { phone: '233' + padStart(username, 9) }],
 		});
 		if (!__user) throw new Error('account not found');
 		if (!__user.verification) throw new Error('account already verified');
 		if (new Date() > new Date(__user.verification.expiry)) {
 			let __code = padStart(random(999999), 6, '0');
-			let __expiry = new Date(new Date().getTime() + config.auth.verification_expiry);
+			let __expiry = new Date(new Date().getTime() + process.env.VERIFICATION_EXPIRY);
 			await __user.updateOne(
 				{
 					$set: {
@@ -170,11 +170,11 @@ async function verifyUser({username, code}) {
 async function sendReset({username}) {
 	try {
 		let __user = await User.findOne({
-			$or: [{ email: username }, { contact: '233' + padStart(username, 9) }],
+			$or: [{ email: username }, { phone: '233' + padStart(username, 9) }],
 		});
 		if (!__user) throw new Error('account not found');
 		let __code = padStart(random(999999), 6, '0');
-		let __expiry = new Date(new Date().getTime() + config.auth.reset_expiry);
+		let __expiry = new Date(new Date().getTime() + process.env.RESET_EXPIRY);
 		await __user.updateOne(
 			{
 				$set: {
@@ -199,7 +199,7 @@ async function sendReset({username}) {
 async function verifyReset({username, code}) {
 	try {
 		let __user = await User.findOne({
-			$or: [{ email: username }, { contact: '233' + padStart(username, 9) }],
+			$or: [{ email: username }, { phone: '233' + padStart(username, 9) }],
 		});
 		if (!__user) throw new Error('account not found');
 		if (!__user.reset) throw new Error('no reset code found');
