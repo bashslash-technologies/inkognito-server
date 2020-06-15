@@ -13,7 +13,7 @@ async function loginUser({ username, password, role }) {
 			role: role?role:'USER'
 		});
 		if (!__user) throw new Error('account not found');
-		if (!__user.isVerified) {
+		if (__user.verification.code) {
 			let __code = padStart(random(999999), 6, '0');
 			let __expiry = new Date().setTime(new Date().getTime() + config.auth.verification_expiry);
 			await __user.updateOne(
@@ -29,10 +29,11 @@ async function loginUser({ username, password, role }) {
 					new: true,
 				}
 			);
-			smsService.sendVerification(__user.phone, code, expiry)
+			smsService.sendVerification(__user.phone, __code, __expiry)
 			throw new Error('account not verified');
 		}
 		if(__user.isLocked) throw new Error('sorry your account has been locked, kindly retry after ' + moment().calendar(__user.locker.expiry));
+		console.log("got here")
 		let isValid = await __user.comparePasswords(password);
 		if (!isValid) {
 			const __expiry = new Date(new Date().getTime() + config.auth.reset_expiry)
@@ -149,8 +150,6 @@ async function verifyUser({username, code}) {
 			smsService.sendVerification(__user.phone, __code, __expiry)
 			throw new Error('reset code expired check new code');
 		}
-		console.log(code)
-		console.log(__user.verification.code)
 		if (String(__user.verification.code) !== String(code)) throw new Error('invalid code');
 		await __user.updateOne(
 			{

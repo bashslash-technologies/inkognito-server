@@ -23,7 +23,7 @@ async function createCategory(admin_id, {name, description}) {
 
 async function retrieveCategories(user_id) {
 	try {
-		let __categories = await Categories.find({});
+		let __categories = await Category.find({});
 		return {
 			categories: __categories,
 		};
