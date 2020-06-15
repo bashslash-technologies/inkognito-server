@@ -158,6 +158,18 @@ async function cashOut(owner_id, {shop_id, amount}) {
 	}
 }
 
+async function myShops(owner_id) {
+	try {
+		let __shops = await Shop.find({owner_id: owner_id});
+		return {
+			shops: __shops
+		};
+	}
+	catch (err) {
+		throw err;
+	}
+}
+
 module.exports = {
 	createShop: createShop,
 	updateShop: updateShop,
@@ -167,4 +179,5 @@ module.exports = {
 	verifyShop: verifyShop,
 	checkBalance: checkBalance,
 	cashOut: cashOut,
+	myShops: myShops
 };
