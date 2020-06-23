@@ -3,12 +3,12 @@
 const express = require('express');
 const courierService = require('../../services/v1/courier');
 const storageService = require('../../services/v1/storage');
-const { handleSuccess } = require('../../middlewares');
+const { handleSuccess, resolveVendor, resolveAdmin } = require('../../middlewares');
 
 function init(io) {
 	let router = express.Router();
 
-	router.post('/', storageService.uploadCertificate().single("certificate"), async function(req, res, next) {
+	router.post('/', resolveVendor, storageService.uploadCertificate().single("certificate"), async function(req, res, next) {
 		try {
 			let result = await courierService.createCourier(req.user_id, req.body);
 			handleSuccess(res, result);
@@ -18,7 +18,7 @@ function init(io) {
 		}
 	});
 
-	router.get('/', async function(req, res, next) {
+	router.get('/', resolveVendor, async function(req, res, next) {
 		try {
 			let result = await courierService.retrieveCourier(req.user_id, req.query);
 			handleSuccess(res, result);
@@ -28,7 +28,7 @@ function init(io) {
 		}
 	})
 
-	router.post('/verify', async function(req, res, next) {
+	router.post('/verify', resolveAdmin, async function(req, res, next) {
 		try {
 			let result = await courierService.verifyCourier(req.user_id, req.body);
 			handleSuccess(res, result);
@@ -38,7 +38,7 @@ function init(io) {
 		}
 	});
 
-	router.get('/wallet', async function(req, res, next) {
+	router.get('/wallet', resolveVendor, async function(req, res, next) {
 		try {
 			let result = await courierService.checkBalance(req.user_id, req.params);
 			handleSuccess(res, result);
@@ -48,7 +48,7 @@ function init(io) {
 		}
 	});
 
-	router.post('/cashout', async function(req, res, next) {
+	router.post('/cashout', resolveVendor, async function(req, res, next) {
 		try {
 			let result = await courierService.cashOut(req.user_id, req.body);
 			handleSuccess(res, result);
