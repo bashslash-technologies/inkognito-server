@@ -3,8 +3,9 @@
 const {Shop, User} = require('../../models/v1');
 const storageService = require('./storage');
 
-async function createShop(owner_id, {name, location: {longitude, latitude}, certificate, certificate_number, description}) {
+async function createShop(owner_id, {name, longitude, latitude, certificate, certificate_number, description}) {
 	try {
+		console.log(longitude)
 		let __user = await User.findById(owner_id);
 		if(!__user) throw new Error('user not found');
 		if(__user.role !== 'VENDOR') throw new Error('you dont have the necessary permissions, contact admin');

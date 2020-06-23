@@ -2,14 +2,17 @@
 
 const {Product, Shop} = require('../../models/v1');
 const storageService = require('./storage');
+const mongoose = require('mongoose');
 
 async function createProduct(owner_id, {shop_id, name, images, price, description, categories}) {
 	try {
+		console.log(shop_id)
+		console.log(owner_id)
 		let __shop = await Shop.findOne({_id: shop_id, owner_id: owner_id});
 		if(!__shop) throw new Error('Shop does not exists');
 		let __product = await Product.findOne({name: name, shop_id: shop_id});
 		if(__product) throw new Error('Product already exists');
-		__product = new Shop({
+		__product = new Product({
 			shop_id: shop_id,
 			name: name,
 			images: images,
@@ -83,7 +86,7 @@ async function deleteProduct(owner_id, {product_id}) {
 	}
 }
 
-async function retrieveProductsShop({page, size}, {shop_id}) {
+async function retrieveProductsShop({shop_id}, {page, size}) {
 	try {
 		let __shop = await Shop.findById(shop_id);
 		if(!__shop) throw new Error('shop does not exist');

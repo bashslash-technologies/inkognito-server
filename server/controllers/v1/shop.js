@@ -3,14 +3,13 @@
 const express = require('express');
 const shopService = require('../../services/v1/shop');
 const storageService = require('../../services/v1/storage');
-const { handleSuccess } = require('../../middlewares');
+const { handleSuccess, resolveVendor } = require('../../middlewares');
 
 function init(io) {
 	let router = express.Router();
 
-	router.post('/', async function(req, res, next) {
+	router.post('/', storageService.uploadCertificate().single("certificate"), resolveVendor, async function(req, res, next) {
 		try {
-			console.log(req.body)
 			let result = await shopService.createShop(req.user_id, req.body);
 			handleSuccess(res, result, 'shop created successful');
 		}
@@ -29,7 +28,7 @@ function init(io) {
 		}
 	});
 
-	router.get('/shop/:shop_id', async function(req, res, next) {
+	router.get('/shop/:shop_id', resolveVendor, async function(req, res, next) {
 		try {
 			let result = await shopService.retrieveShop(req.user_id, req.params);
 			handleSuccess(res, result);
@@ -39,7 +38,7 @@ function init(io) {
 		}
 	});
 
-	router.put('/', async function(req, res, next) {
+	router.put('/', resolveVendor, async function(req, res, next) {
 		try {
 			let result = await shopService.updateShop(req.user_id, req.body);
 			handleSuccess(res, result, 'shop details updated successfully');
@@ -49,7 +48,7 @@ function init(io) {
 		}
 	});
 
-	router.put('/logo', storageService.uploadLogo().single('logo'), async function(req, res, next) {
+	router.put('/logo', storageService.uploadLogo().single('logo'), resolveVendor, async function(req, res, next) {
 		try {
 			req.body.logo = req.file.location;
 			let result = await shopService.updateLogo(req.user_id, req.body);
@@ -60,7 +59,7 @@ function init(io) {
 		}
 	});
 
-	router.get('/wallet', async function(req, res, next) {
+	router.get('/wallet', resolveVendor, async function(req, res, next) {
 		try {
 			let result = await shopService.checkBalance(req.user_id, req.params);
 			handleSuccess(res, result);
@@ -70,17 +69,17 @@ function init(io) {
 		}
 	});
 
-	router.get('/me', async function(req, res, next) {
+	router.get('/me', resolveVendor, async function(req, res, next) {
 		try {
 			let result = await shopService.myShops(req.user_id);
-			handleSuccess(res, result)
+			handleSuccess(res, result);
 		}
 		catch (err) {
 			next(err);
 		}
 	});
 
-	router.post('/cashout', async function(req, res, next) {
+	router.post('/cashout', resolveVendor, async function(req, res, next) {
 		try {
 			let result = await shopService.cashOut(req.user_id, req.body);
 			handleSuccess(res, result);

@@ -2,12 +2,13 @@
 
 const express = require('express');
 const courierService = require('../../services/v1/courier');
+const storageService = require('../../services/v1/storage');
 const { handleSuccess } = require('../../middlewares');
 
 function init(io) {
 	let router = express.Router();
 
-	router.post('/', async function(req, res, next) {
+	router.post('/', storageService.uploadCertificate().single("certificate"), async function(req, res, next) {
 		try {
 			let result = await courierService.createCourier(req.user_id, req.body);
 			handleSuccess(res, result);
