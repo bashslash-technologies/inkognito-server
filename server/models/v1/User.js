@@ -61,11 +61,11 @@ const UserSchema = new mongoose.Schema({
 
 
 UserSchema.pre('save', async function (next) {
-    if (!this.isModified('hash')) return next();
+    if (!this.isModified('password')) return next();
     try {
         let salt = await bcrypt.genSalt(10);
-        let hash = await bcrypt.hash(this.hash, salt);
-        this.hash = hash;
+        let hash = await bcrypt.hash(this.password, salt);
+        this.password = hash;
         next();
     } catch (err) {
         next(err);
@@ -73,7 +73,7 @@ UserSchema.pre('save', async function (next) {
 });
 
 UserSchema.methods.comparePasswords = async function (hash) {
-    return await bcrypt.compare(hash, this.hash);
+    return await bcrypt.compare(hash, this.password);
 };
 
 UserSchema.methods.generateAuthToken = async function () {
