@@ -11,7 +11,7 @@ function init(io) {
 		productController,
 		shopController,
 		tripController,
-		userController
+		userController,
 	} = require('../../controllers/v1')(io.of('/v1'));
 
 	router.use('/categories', categoryController);
