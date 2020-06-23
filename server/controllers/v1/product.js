@@ -3,12 +3,12 @@
 const express = require('express');
 const productService = require('../../services/v1/product');
 const storageService = require('../../services/v1/storage');
-const { handleSuccess } = require('../../middlewares');
+const { handleSuccess, resolveVendor } = require('../../middlewares');
 
 function init(io) {
 	let router = express.Router();
 
-	router.post('/', storageService.uploadProduct().array("files", 5), async function(req, res, next) {
+	router.post('/', storageService.uploadProduct().array("files", 5), resolveVendor, async function(req, res, next) {
 		try {
 			req.body.images = req.files.map((file) => file.location);
 			let result = await productService.createProduct(req.user_id, req.body);
@@ -19,7 +19,7 @@ function init(io) {
 		}
 	});
 
-	router.put('/', storageService.uploadProduct().array("files", 5), async function(req, res, next) {
+	router.put('/', storageService.uploadProduct().array("files", 5), resolveVendor, async function(req, res, next) {
 		try {
 			if(req.files) {
 				req.body.images = req.files.map((file) => file.location);
@@ -32,7 +32,7 @@ function init(io) {
 		}
 	});
 
-	router.delete('/:product_id', async function(req, res, next) {
+	router.delete('/:product_id', resolveVendor, async function(req, res, next) {
 		try {
 			let result = await productService.deleteProduct(req.user_id, req.params);
 			handleSuccess(res, result, 'logo updated successfully');
@@ -52,9 +52,9 @@ function init(io) {
 		}
 	});
 
-	router.get('/shop', async function(req, res, next) {
+	router.get('/shop/:shop_id', async function(req, res, next) {
 		try {
-			let result = await productService.retrieveProductsShop(req.query);
+			let result = await productService.retrieveProductsShop(req.params, req.query);
 			handleSuccess(res, result);
 		}
 		catch (err) {
