@@ -65,6 +65,7 @@ async function loginUser({ username, password, role }) {
       token: await __user.generateAuthToken(),
     };
   } catch (err) {
+    console.log(err)
     throw err;
   }
 }
@@ -81,6 +82,7 @@ async function registerUser({ email, phone, name, password, role }) {
     );
     console.log(config.auth.verification_expiry);
     console.log(__expiry);
+    console.log(phone)
     let __user = new User({
       email: email,
       phone: "233" + padStart(phone, 9),
@@ -161,7 +163,7 @@ async function verifyUser({ username, code }) {
       smsService.sendVerification(__user.phone, __code, __expiry);
       throw new Error("reset code expired check new code");
     }
-    if (String(__user.verification.code) !== String(code))
+    if (__user.verification.code != code)
       throw new Error("invalid code");
     await __user.updateOne(
       {
