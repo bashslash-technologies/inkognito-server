@@ -3,12 +3,12 @@
 const express = require('express');
 const orderService = require('../../services/v1/order');
 const locationService = require('../../services/v1/location');
-const { handleSuccess } = require('../../middlewares');
+const { handleSuccess, resolveUser, resolveVendor, resolveAdmin } = require('../../middlewares');
 
 function init(io) {
 	let router = express.Router();
 
-	router.post('/', async function(req, res, next) {
+	router.post('/', resolveUser, async function(req, res, next) {
 		try {
 			let result = await orderService.createOrder(req.user_id, req.body);
 			io.emit(result.shop + '-adwuma-aba', result.order)
@@ -19,7 +19,7 @@ function init(io) {
 		}
 	});
 
-	router.post('/ready', async function(req, res, next) {
+	router.post('/ready', resolveVendor, async function(req, res, next) {
 		try {
 			let result = await orderService.updateOrderReady(req.user_id, req.body);
 			let [longitude, latitude] = result.trip.start_point.coordinates;
@@ -34,7 +34,7 @@ function init(io) {
 		}
 	});
 
-	router.put('/', async function(req, res, next) {
+	router.put('/', resolveVendor, async function(req, res, next) {
 		try {
 			let result = await orderService.updateOrder(req.user_id, req.body);
 			handleSuccess(res, result);
@@ -44,7 +44,7 @@ function init(io) {
 		}
 	});
 
-	router.get('/', async function(req, res, next) {
+	router.get('/', resolveAdmin, async function(req, res, next) {
 		try {
 			let result = await orderService.retrieveOrders(req.user_id, req.query);
 			handleSuccess(res, result);
@@ -54,7 +54,7 @@ function init(io) {
 		}
 	});
 
-	router.get('/user', async function(req, res, next) {
+	router.get('/user', resolveUser, async function(req, res, next) {
 		try {
 			let result = await orderService.retrieveOrdersUser(req.user_id, req.query);
 			handleSuccess(res, result);
@@ -64,7 +64,7 @@ function init(io) {
 		}
 	});
 
-	router.get('/shop', async function(req, res, next) {
+	router.get('/shop', resolveVendor, async function(req, res, next) {
 		try {
 			let result = await orderService.retrieveOrdersShop(req.user_id, req.query);
 			handleSuccess(res, result);

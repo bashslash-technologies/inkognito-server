@@ -337,8 +337,8 @@ API_ROUTES = {
 			method: 'GET',
 			body: {},
 			query: {
-				'page': Number,
-				'size': Number,
+				'longitude': Number,
+				'latitude': Number,
 			},
 			params: {},
 		},
