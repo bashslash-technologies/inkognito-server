@@ -7,23 +7,20 @@ const paymentService = require('./payment');
 
 async function createOrder(user_id, {cart, location: {longitude, latitude}, delivery_type}) {
 	try {
+		console.log(user_id)
 		let __user = await User.findById(user_id);
 		if(!__user) throw new Error("account not found")
-		let __cart = cart.map(async({
-			product,
-			quantity
-		})=>{
-			let __product = await Product.findById(product)
-				.populate('shop_id')
-				.execPopulate();
-			if(!__product) throw new Error(`item ${product} does not exist`);
-			return ({
+		let __cart = [];
+		for (let i = 0; i < cart.length; i++) {
+			let __product = await Product.findById(cart[i].product).populate('shop_id');
+			if(!__product) throw new Error(`item ${cart[i].product} does not exist`);
+			__cart.push({
 				product: __product._id,
 				shop: __product.shop_id,
 				price: __product.price,
-				quantity,
+				quantity: cart[i].quantity,
 			})
-		})
+		}
 		let [longitude_a, latitude_a] = __cart[0].shop.location.coordinates;
 		let __delivery_cost = locationService.calculatePricing({longitude, latitude}, {longitude_a, latitude_a})
 		let __delivery = new Trip({
@@ -42,14 +39,15 @@ async function createOrder(user_id, {cart, location: {longitude, latitude}, deli
 			cart: __cart,
 			delivery: __delivery._id,
 			cost: {
-				delivery: __delivery_cost,
+				delivery: __delivery_cost[delivery_type],
 				products: _.sumBy(__cart, function({price, quantity}) {
 					return price * quantity;
 				})
 			}
 		})
+		console.log(__order)
 		__delivery.order_id = __order._id;
-		await paymentService
+		return await paymentService
 			.transaction
 			.initialize({
 				email: __user.email,
@@ -59,6 +57,7 @@ async function createOrder(user_id, {cart, location: {longitude, latitude}, deli
 			})
 			.then(async function(result){
 				if(!result.status){
+					console.log(result)
 					throw new Error("an error occurred")
 				}
 				__order.payment = {
@@ -75,7 +74,6 @@ async function createOrder(user_id, {cart, location: {longitude, latitude}, deli
 				};
 			})
 			.catch(function(err){
-				console.log(err)
 				throw new Error('cant process request now, try again later')
 			})
 	}

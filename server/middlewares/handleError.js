@@ -3,6 +3,7 @@
 const HandleError = function (err, req, res, next) {
 	if(err.message){
 		console.log(err.message)
+		console.log(err)
 	}else{
 		console.log(err)
 	}

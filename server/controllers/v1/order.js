@@ -8,11 +8,12 @@ const { handleSuccess, resolveUser, resolveVendor, resolveAdmin } = require('../
 function init(io) {
 	let router = express.Router();
 
-	router.post('/', resolveUser, async function(req, res, next) {
+	router.post('/order', resolveUser, async function(req, res, next) {
 		try {
 			let result = await orderService.createOrder(req.user_id, req.body);
-			io.emit(result.shop + '-adwuma-aba', result.order)
+			console.log("result", result)
 			handleSuccess(res, result);
+			io.emit(result.shop + '-adwuma-aba', result.order);
 		}
 		catch(err) {
 			next(err);

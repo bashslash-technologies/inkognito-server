@@ -58,8 +58,9 @@ const OrderSchema = new mongoose.Schema(
 );
 
 OrderSchema.pre('save', function(next) {
-    Counter.findByIdAndUpdate({_id: 'order'}, {$inc: { seq: 1} }, (err, counter) => {
+    Counter.findByIdAndUpdate({_id: 'orders'}, {$inc: { seq: 1} }, (err, counter) => {
         if(err){ return next(err);}
+        console.log("counter", counter)
         this.orderNumber = counter.seq;
         next();
     });
