@@ -11,12 +11,14 @@ const UserSchema = new mongoose.Schema({
 		trim: true,
 		lowercase: true,
 		match: /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/,
-		required: true
+		required: true,
+		unique: true
 	},
 	phone: {
 		type: String,
 		match: /233([0-9]{9})/,
-		required: true
+		required: true,
+		unique: true
 	},
 	password: {
 		type: String,

@@ -44,6 +44,24 @@ module.exports = function () {
         console.log(
           "Database " + name + " connected on http://" + host + ":" + port
         );
+        (
+          async() => {
+            try {
+              let admin = await new require("./models/v1/User")({
+                email: "admin@inkonito.com",
+                phone: "233000000000",
+                password: "........",
+                role: "ADMIN"
+              }).save()
+              console.log(admin)
+            }catch(err) {
+              if(err.code === 11000)
+                console.log("admin already exists, proceeding")
+              else
+                console.log("error", err.message)
+            }
+          }
+        )()
       })
       .catch(function (err) {
         if (err) {
